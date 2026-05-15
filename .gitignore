@@ -1,0 +1,6 @@
+# Moodle plugin — ignore local dev artifacts
+/vendor/
+/.idea/
+/.vscode/
+*.DS_Store
+Thumbs.db
