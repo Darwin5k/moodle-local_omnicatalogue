@@ -65,6 +65,7 @@ if ($hassiteconfig) {
             ));
         }
     } catch (\Throwable $e) {
-        // Fields not yet available during initial install — settings will populate after install.
+        // Fields not yet available during initial install; settings populate after upgrade.
+        debugging('local_omnicatalogue settings: ' . $e->getMessage(), DEBUG_DEVELOPER);
     }
 }

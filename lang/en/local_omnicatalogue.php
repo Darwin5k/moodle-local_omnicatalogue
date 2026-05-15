@@ -24,20 +24,20 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname']        = 'Course Catalogue';
-$string['catalogue']         = 'Course Catalogue';
-$string['omnicatalogue:view'] = 'View course catalogue';
-$string['filterby']          = 'Filter by';
-$string['clearfilters']      = 'Clear filters';
-$string['applyfilters']      = 'Apply filters';
-$string['nocourses']         = 'No courses match the selected filters.';
 $string['allcourses']        = 'All courses';
-$string['results']           = '{$a} courses found';
+$string['applyfilters']      = 'Apply filters';
+$string['catalogue']         = 'Course Catalogue';
 $string['category']          = 'Category';
-$string['viewcourse']        = 'View course';
-$string['settings']          = 'Catalogue settings';
+$string['clearfilters']      = 'Clear filters';
+$string['filterby']          = 'Filter by';
+$string['nocourses']         = 'No courses match the selected filters.';
+$string['omnicatalogue:view'] = 'View course catalogue';
 $string['perpage']           = 'Courses per page';
 $string['perpage_desc']      = 'Number of courses to display per page.';
-$string['showfilterfield']   = 'Show "{$a}" as a filter';
-$string['showcardfield']     = 'Show "{$a}" on course cards';
+$string['pluginname']        = 'Course Catalogue';
 $string['privacy:metadata']  = 'The course catalogue plugin does not store any personal data.';
+$string['results']           = '{$a} courses found';
+$string['settings']          = 'Catalogue settings';
+$string['showcardfield']     = 'Show "{$a}" on course cards';
+$string['showfilterfield']   = 'Show "{$a}" as a filter';
+$string['viewcourse']        = 'View course';

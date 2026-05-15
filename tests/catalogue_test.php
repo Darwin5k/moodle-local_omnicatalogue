@@ -20,7 +20,6 @@
  * @package    local_omnicatalogue
  * @copyright  2026 Your Name <you@example.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     \local_omnicatalogue\catalogue
  */
 
 namespace local_omnicatalogue;
@@ -29,9 +28,10 @@ use advanced_testcase;
 
 /**
  * Tests for catalogue::get_facets() and catalogue::get_courses().
+ *
+ * @covers \local_omnicatalogue\catalogue
  */
-class catalogue_test extends advanced_testcase {
-
+final class catalogue_test extends advanced_testcase {
     /** @var int */
     private int $fieldid;
 
@@ -53,10 +53,6 @@ class catalogue_test extends advanced_testcase {
         // Enable this field as a filter.
         set_config('filterfield_' . $this->fieldid, 1, 'local_omnicatalogue');
     }
-
-    // -------------------------------------------------------------------------
-    // get_facets()
-    // -------------------------------------------------------------------------
 
     /**
      * get_facets() returns only values that have been used on at least one course.
@@ -113,10 +109,6 @@ class catalogue_test extends advanced_testcase {
 
         $this->assertEmpty($facets);
     }
-
-    // -------------------------------------------------------------------------
-    // get_courses()
-    // -------------------------------------------------------------------------
 
     /**
      * With no filters, all visible non-site courses are returned.
@@ -190,10 +182,6 @@ class catalogue_test extends advanced_testcase {
         $this->assertSame(1, $result['total']);
         $this->assertSame($visible->id, $result['courses'][0]->id);
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     /**
      * Creates a visible course and inserts omniselect values for it directly.
