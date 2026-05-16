@@ -131,14 +131,39 @@ define([
                 clearLink.classList.toggle('d-none', !data.hasfilters);
             }
 
+            // Snapshot which facet panels are currently expanded so we can
+            // restore that state after the re-render.  Without this, a panel
+            // the user was working in collapses when they clear its last value.
+            var openFacetIds = [];
+            var facetsEl = document.getElementById('omnicatalogue-facets');
+            if (facetsEl) {
+                facetsEl.querySelectorAll('.collapse.show[id]').forEach(function(el) {
+                    openFacetIds.push(el.id);
+                });
+            }
+
             // Re-render the facet list.
             return Templates.renderForPromise(
                 'local_omnicatalogue/catalogue_facets',
                 {facets: data.facets}
             ).then(function(facetResult) {
-                var facetsEl = document.getElementById('omnicatalogue-facets');
                 if (facetsEl) {
                     Templates.replaceNodeContents(facetsEl, facetResult.html, facetResult.js);
+
+                    // Re-open any panel that was expanded before the re-render,
+                    // regardless of whether it now has active filters.
+                    openFacetIds.forEach(function(id) {
+                        var panel = document.getElementById(id);
+                        if (panel) {
+                            panel.classList.add('show');
+                            // Keep the toggle button's aria-expanded in sync so
+                            // the caret rotates correctly.
+                            var btn = facetsEl.querySelector('[data-bs-target="#' + id + '"]');
+                            if (btn) {
+                                btn.setAttribute('aria-expanded', 'true');
+                            }
+                        }
+                    });
                 }
 
                 // Re-render the course grid + pagination.
