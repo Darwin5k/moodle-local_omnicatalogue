@@ -72,57 +72,56 @@ foreach ($result['courses'] as $course) {
         $course->summaryformat,
         ['context' => context_system::instance(), 'para' => false]
     );
-    // Truncate summary for card display.
     $summary = html_to_text($summary, 0, false);
     if (core_text::strlen($summary) > 200) {
         $summary = core_text::substr($summary, 0, 200) . '…';
     }
+    $fieldvalues = catalogue::get_course_card_fieldvalues($course, $cardfields);
     $cards[] = [
-        'id'          => $course->id,
-        'fullname'    => format_string($course->fullname),
-        'summary'     => $summary,
-        'category'    => format_string($course->categoryname),
-        'courseurl'   => (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false),
-        'imageurl'    => catalogue::get_course_image_url($course),
-        'fieldvalues' => catalogue::get_course_card_fieldvalues($course, $cardfields),
-        'hasfieldvalues' => !empty(catalogue::get_course_card_fieldvalues($course, $cardfields)),
+        'id'             => $course->id,
+        'fullname'       => format_string($course->fullname),
+        'summary'        => $summary,
+        'category'       => format_string($course->categoryname),
+        'courseurl'      => (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false),
+        'imageurl'       => catalogue::get_course_image_url($course),
+        'hasfieldvalues' => !empty($fieldvalues),
+        'fieldvalues'    => array_values($fieldvalues),
     ];
 }
 
-// Build a form action URL preserving current filters for pagination links.
 $baseurl = new moodle_url('/local/omnicatalogue/index.php');
-
-// Encode active filters as flat hidden-input data for pagination.
-$filterparams = [];
-foreach ($activefilters as $fieldid => $values) {
-    foreach ($values as $v) {
-        $filterparams[] = ['name' => "f[{$fieldid}][]", 'value' => $v];
-    }
-}
+$total   = $result['total'];
 
 $templatecontext = [
     'facets'        => $facets,
     'hasfacets'     => !empty($facets),
     'courses'       => $cards,
-    'totalcount'    => $result['total'],
-    'resultstring'  => get_string('results', 'local_omnicatalogue', $result['total']),
+    'totalcount'    => $total,
+    'resultstring'  => get_string('results', 'local_omnicatalogue', $total),
     'hasfilters'    => !empty($activefilters),
     'nocourses'     => empty($cards),
+    'nocoursestr'   => get_string('nocourses', 'local_omnicatalogue'),
     'formaction'    => $baseurl->out(false),
-    'filterparams'  => $filterparams,
     'page'          => $page,
     'perpage'       => $perpage,
-    'haspages'      => $result['total'] > $perpage,
-    'prevpage'      => $page > 0 ? $page - 1 : null,
-    'nextpage'      => ($page + 1) * $perpage < $result['total'] ? $page + 1 : null,
+    'haspages'      => $total > $perpage,
+    'prevpage'      => $page > 0 ? $page - 1 : 0,
+    'nextpage'      => $page + 1,
     'hasprev'       => $page > 0,
-    'hasnext'       => ($page + 1) * $perpage < $result['total'],
+    'hasnext'       => ($page + 1) * $perpage < $total,
     'clearurl'      => $baseurl->out(false),
     'applyfilters'  => get_string('applyfilters', 'local_omnicatalogue'),
     'clearfilters'  => get_string('clearfilters', 'local_omnicatalogue'),
     'filterby'      => get_string('filterby', 'local_omnicatalogue'),
-    'nocoursestr'   => get_string('nocourses', 'local_omnicatalogue'),
 ];
+
+// Initialise the AJAX module, passing the strings it needs for client-side renders.
+$PAGE->requires->js_call_amd('local_omnicatalogue/catalogue', 'init', [[
+    'baseUrl'     => $baseurl->out(false),
+    'perpage'     => $perpage,
+    'nocoursestr' => get_string('nocourses', 'local_omnicatalogue'),
+    'page'        => $page,
+]]);
 
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('local_omnicatalogue/catalogue_page', $templatecontext);

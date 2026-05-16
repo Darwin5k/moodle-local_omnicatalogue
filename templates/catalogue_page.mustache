@@ -1,35 +1,56 @@
 {{!
     @template local_omnicatalogue/catalogue_page
+
     Course catalogue page with filter sidebar and course grid.
+    The AMD module targets elements by ID to update sections in place via AJAX.
+
+    Context variables:
+    * formaction   - URL for the filter form action.
+    * filterby     - translated "Filter by" label.
+    * clearfilters - translated "Clear filters" label.
+    * clearurl     - URL that clears all filters (base catalogue URL).
+    * hasfilters   - boolean; true when any filters are currently active.
+    * hasfacets    - boolean; true when at least one facet panel exists.
+    * applyfilters - translated "Apply filters" button label.
+    * facets       - array of facet objects passed to catalogue_facets.
+    * resultstring - translated result-count string.
+    * courses      - array of course card objects (passed to catalogue_courses).
+    * nocourses    - boolean; true when result set is empty.
+    * nocoursestr  - translated "no courses" message.
+    * haspages     - boolean; pagination needed.
+    * hasprev / hasnext / prevpage / nextpage - pagination state.
 }}
-<div class="local-omnicatalogue container-fluid py-4">
+<div class="local-omnicatalogue container-fluid py-4" id="omnicatalogue-root">
   <div class="row">
 
-    {{! Filter sidebar }}
+    {{! Filter sidebar — static wrapper; only the facet list inside is replaced }}
     <div class="col-md-3 col-lg-2 mb-4">
-      <form method="get" action="{{formaction}}">
-        {{#filterparams}}
-          <input type="hidden" name="{{name}}" value="{{value}}">
-        {{/filterparams}}
+      <form method="get" action="{{formaction}}" id="omnicatalogue-filter-form">
         <input type="hidden" name="page" value="0">
 
         <div class="local-omnicatalogue-sidebar-box card">
           <div class="card-body p-3">
+
             <div class="d-flex align-items-baseline justify-content-between mb-2">
               <span class="local-omnicatalogue-sidebar__title">{{filterby}}</span>
-              {{#hasfilters}}
-                <a href="{{clearurl}}" class="local-omnicatalogue-sidebar__clear text-decoration-none small">{{clearfilters}}</a>
-              {{/hasfilters}}
+              <a href="{{clearurl}}"
+                 id="omnicatalogue-clear-link"
+                 class="local-omnicatalogue-sidebar__clear text-decoration-none small{{^hasfilters}} d-none{{/hasfilters}}">
+                {{clearfilters}}
+              </a>
             </div>
             <hr class="mt-0 mb-3">
 
-            {{#facets}}
-              {{> local_omnicatalogue/filter_sidebar}}
-            {{/facets}}
+            {{! Facet panels — replaced by AJAX re-renders }}
+            <div id="omnicatalogue-facets">
+              {{> local_omnicatalogue/catalogue_facets}}
+            </div>
 
             {{#hasfacets}}
-              <button type="submit" class="btn btn-primary btn-sm w-100 mt-2">{{applyfilters}}</button>
+              <button type="submit"
+                      class="btn btn-primary btn-sm w-100 mt-2">{{applyfilters}}</button>
             {{/hasfacets}}
+
           </div>
         </div>
       </form>
@@ -37,42 +58,27 @@
 
     {{! Course grid }}
     <div class="col-md-9 col-lg-10">
+
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <span class="text-muted small">{{resultstring}}</span>
+        <span class="text-muted small" id="omnicatalogue-resultcount">{{resultstring}}</span>
       </div>
 
-      {{#nocourses}}
-        <div class="alert alert-info">{{nocoursestr}}</div>
-      {{/nocourses}}
+      {{! Outer wrapper is position:relative so the loading overlay can sit on top }}
+      <div class="position-relative">
 
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
-        {{#courses}}
-          {{> local_omnicatalogue/course_card}}
-        {{/courses}}
-      </div>
-
-      {{#haspages}}
-        <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
-          {{#hasprev}}
-            <form method="get" action="{{formaction}}">
-              {{#filterparams}}
-                <input type="hidden" name="{{name}}" value="{{value}}">
-              {{/filterparams}}
-              <input type="hidden" name="page" value="{{prevpage}}">
-              <button type="submit" class="btn btn-outline-primary btn-sm">&laquo; Previous</button>
-            </form>
-          {{/hasprev}}
-          {{#hasnext}}
-            <form method="get" action="{{formaction}}">
-              {{#filterparams}}
-                <input type="hidden" name="{{name}}" value="{{value}}">
-              {{/filterparams}}
-              <input type="hidden" name="page" value="{{nextpage}}">
-              <button type="submit" class="btn btn-outline-primary btn-sm">Next &raquo;</button>
-            </form>
-          {{/hasnext}}
+        {{! Loading overlay — hidden by default; JS toggles d-none }}
+        <div id="omnicatalogue-loading" class="local-omnicatalogue-loading d-none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading&hellip;</span>
+          </div>
         </div>
-      {{/haspages}}
+
+        {{! Course grid + pagination — replaced by AJAX re-renders }}
+        <div id="omnicatalogue-courses-inner">
+          {{> local_omnicatalogue/catalogue_courses}}
+        </div>
+
+      </div>
     </div>
 
   </div>

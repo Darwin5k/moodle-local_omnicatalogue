@@ -1,0 +1,12 @@
+{{!
+    @template local_omnicatalogue/catalogue_facets
+
+    Renders all facet panels for the filter sidebar.
+    Used by the AMD module to re-render just the facet list after a filter change.
+
+    Context variables:
+    * facets - array of facet objects, each passed to filter_sidebar.
+}}
+{{#facets}}
+  {{> local_omnicatalogue/filter_sidebar}}
+{{/facets}}

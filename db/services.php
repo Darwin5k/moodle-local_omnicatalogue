@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and dependencies.
+ * Web service function definitions for local_omnicatalogue.
  *
  * @package    local_omnicatalogue
  * @copyright  2026 Your Name <you@example.com>
@@ -24,9 +24,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component    = 'local_omnicatalogue';
-$plugin->version      = 2026051501;
-$plugin->requires     = 2025092600;
-$plugin->dependencies = ['customfield_omniselect' => 2026051402];
-$plugin->maturity     = MATURITY_ALPHA;
-$plugin->release      = '1.1.0';
+$functions = [
+    'local_omnicatalogue_get_catalogue' => [
+        'classname'     => 'local_omnicatalogue\external\get_catalogue',
+        'methodname'    => 'execute',
+        'description'   => 'Returns facet sidebar data and course cards for the catalogue.',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+];

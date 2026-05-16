@@ -86,3 +86,22 @@
     background-color: var(--bs-primary);
     color: #fff;
 }
+
+/* ==========================================================================
+   Loading overlay — displayed over the course grid during AJAX requests
+   ========================================================================== */
+
+.local-omnicatalogue-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 6rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 3rem;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+}

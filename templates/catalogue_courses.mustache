@@ -1,0 +1,41 @@
+{{!
+    @template local_omnicatalogue/catalogue_courses
+
+    Course grid and pagination controls.
+    Rendered server-side on initial load (included by catalogue_page) and
+    re-rendered client-side by the AMD module after each AJAX response.
+
+    Context variables:
+    * courses     - array of course card objects.
+    * nocourses   - boolean; true when result set is empty.
+    * nocoursestr - translated "no courses" message.
+    * haspages    - boolean; true when pagination controls are needed.
+    * hasprev     - boolean; true when a previous page exists.
+    * hasnext     - boolean; true when a next page exists.
+    * prevpage    - zero-based previous page number.
+    * nextpage    - zero-based next page number.
+}}
+{{#nocourses}}
+  <div class="alert alert-info">{{nocoursestr}}</div>
+{{/nocourses}}
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
+  {{#courses}}
+    {{> local_omnicatalogue/course_card}}
+  {{/courses}}
+</div>
+
+{{#haspages}}
+  <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
+    {{#hasprev}}
+      <button type="button"
+              class="btn btn-outline-primary btn-sm"
+              data-omnicatalogue-page="{{prevpage}}">&laquo; Previous</button>
+    {{/hasprev}}
+    {{#hasnext}}
+      <button type="button"
+              class="btn btn-outline-primary btn-sm"
+              data-omnicatalogue-page="{{nextpage}}">Next &raquo;</button>
+    {{/hasnext}}
+  </div>
+{{/haspages}}
