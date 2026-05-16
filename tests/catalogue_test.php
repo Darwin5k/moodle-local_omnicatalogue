@@ -184,9 +184,12 @@ final class catalogue_test extends advanced_testcase {
     }
 
     /**
-     * Creates a visible course and inserts omniselect values for it directly.
+     * Creates a visible course and inserts omniselect selections for it.
      *
-     * @param string[] $values
+     * Each label string is looked up in customfield_omniselect_opts to find its
+     * stable option ID. Vals rows now store optionid (int), not the string value.
+     *
+     * @param string[] $values Option label strings (must match options defined in setUp).
      * @return \stdClass The created course record.
      */
     private function create_course_with_values(array $values): \stdClass {
@@ -194,11 +197,17 @@ final class catalogue_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['visible' => 1]);
         foreach ($values as $value) {
-            $DB->insert_record('customfield_omniselect_vals', (object)[
-                'fieldid'    => $this->fieldid,
-                'instanceid' => $course->id,
-                'value'      => $value,
+            $opt = $DB->get_record('customfield_omniselect_opts', [
+                'fieldid' => $this->fieldid,
+                'value'   => $value,
             ]);
+            if ($opt) {
+                $DB->insert_record('customfield_omniselect_vals', (object)[
+                    'fieldid'    => $this->fieldid,
+                    'instanceid' => $course->id,
+                    'optionid'   => (int)$opt->id,
+                ]);
+            }
         }
         return $course;
     }
