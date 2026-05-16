@@ -81,6 +81,9 @@ class catalogue {
      * Each facet contains the field name, a list of values with counts, and which
      * values are currently selected according to $activefilters.
      *
+     * Active filters carry option display strings (from the URL), so the selected
+     * check compares by string value rather than option ID.
+     *
      * @param array $activefilters Keyed by field ID, values are arrays of selected strings.
      * @return array
      */
@@ -89,14 +92,17 @@ class catalogue {
 
         $facets = [];
         foreach (self::get_filter_fields() as $fieldid => $field) {
-            $sql = "SELECT omv.value, COUNT(DISTINCT omv.instanceid) AS cnt
+            // Join with opts to get the display label from the stable opts table,
+            // not from the vals table (which stores option IDs, not strings).
+            $sql = "SELECT oo.id AS optionid, oo.value, COUNT(DISTINCT omv.instanceid) AS cnt
                       FROM {customfield_omniselect_vals} omv
+                      JOIN {customfield_omniselect_opts} oo ON oo.id = omv.optionid
                       JOIN {course} c ON c.id = omv.instanceid
                      WHERE omv.fieldid = :fieldid
                        AND c.visible = 1
                        AND c.id <> :siteid
-                  GROUP BY omv.value
-                  ORDER BY omv.value ASC";
+                  GROUP BY oo.id, oo.value
+                  ORDER BY oo.value ASC";
 
             $rows     = $DB->get_records_sql($sql, ['fieldid' => $fieldid, 'siteid' => SITEID]);
             $selected = $activefilters[$fieldid] ?? [];
@@ -127,7 +133,10 @@ class catalogue {
     /**
      * Returns a paginated list of visible courses matching the given filters.
      *
-     * Filters are ANDed between facets and ORed within a facet.
+     * Filters are ANDed between facets and ORed within a facet. Active filters
+     * carry option display strings (from the URL); the query joins with
+     * customfield_omniselect_opts to translate strings to option IDs on the fly,
+     * so URL parameters remain human-readable.
      *
      * @param array $activefilters Keyed by field ID, values are arrays of selected strings.
      * @param int   $page          Zero-based page number.
@@ -149,12 +158,15 @@ class catalogue {
             [$insql, $inparams] = $DB->get_in_or_equal(
                 array_values($values),
                 SQL_PARAMS_NAMED,
-                "v{$i}"
+                "v{$i}_"
             );
+            // Join vals + opts so we can filter by display string while storing IDs.
             $joins[] = "JOIN {customfield_omniselect_vals} omv{$i}
                           ON omv{$i}.instanceid = c.id
                          AND omv{$i}.fieldid = :fid{$i}
-                         AND omv{$i}.value {$insql}";
+                        JOIN {customfield_omniselect_opts} oo{$i}
+                          ON oo{$i}.id = omv{$i}.optionid
+                         AND oo{$i}.value {$insql}";
             $params["fid{$i}"] = (int)$fieldid;
             $params             = array_merge($params, $inparams);
         }
@@ -213,6 +225,8 @@ class catalogue {
     /**
      * Returns card field values for a given course, formatted for template rendering.
      *
+     * Joins with opts to resolve option IDs to display labels, ordered by sortorder.
+     *
      * @param \stdClass $course
      * @param \core_customfield\field_controller[] $cardfields
      * @return array
@@ -222,16 +236,19 @@ class catalogue {
 
         $result = [];
         foreach ($cardfields as $fieldid => $field) {
-            $values = $DB->get_fieldset_select(
-                'customfield_omniselect_vals',
-                'value',
-                'fieldid = ? AND instanceid = ?',
-                [$fieldid, $course->id]
+            $rows = $DB->get_records_sql(
+                "SELECT oo.value
+                   FROM {customfield_omniselect_vals} omv
+                   JOIN {customfield_omniselect_opts} oo ON oo.id = omv.optionid
+                  WHERE omv.fieldid = :fieldid
+                    AND omv.instanceid = :instanceid
+               ORDER BY oo.sortorder ASC, oo.value ASC",
+                ['fieldid' => $fieldid, 'instanceid' => $course->id]
             );
-            if (!empty($values)) {
+            if (!empty($rows)) {
                 $result[] = [
                     'fieldname' => $field->get_formatted_name(),
-                    'values'    => implode(', ', $values),
+                    'values'    => implode(', ', array_column((array)$rows, 'value')),
                 ];
             }
         }
