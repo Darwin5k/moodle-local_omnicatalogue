@@ -1,0 +1,88 @@
+/* ==========================================================================
+   local_omnicatalogue — filter sidebar styles
+   ========================================================================== */
+
+/* Sidebar heading */
+.local-omnicatalogue-sidebar__title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.local-omnicatalogue-sidebar__clear {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.local-omnicatalogue-sidebar__clear:hover {
+    color: #a71d2a;
+}
+
+/* Facet header button */
+.local-omnicatalogue-facet__header {
+    cursor: pointer;
+    color: inherit;
+}
+
+.local-omnicatalogue-facet__header:hover {
+    color: var(--bs-primary) !important;
+}
+
+/* CSS-only disclosure chevron */
+.local-omnicatalogue-caret {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #adb5bd;
+    transition: transform 0.2s ease;
+}
+
+.local-omnicatalogue-caret--active {
+    border-top-color: var(--bs-primary);
+}
+
+/* Rotate caret when facet is collapsed */
+.local-omnicatalogue-facet__header[aria-expanded="false"] .local-omnicatalogue-caret {
+    transform: rotate(-90deg);
+}
+
+/* Individual filter option row */
+.local-omnicatalogue-option {
+    cursor: pointer;
+    user-select: none;
+    margin: 1px 0;
+    transition: background-color 0.1s ease;
+    min-height: 2rem;
+}
+
+.local-omnicatalogue-option:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.07);
+}
+
+.local-omnicatalogue-option--selected {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.local-omnicatalogue-option--selected .small {
+    font-weight: 600;
+}
+
+/* Count badge */
+.local-omnicatalogue-count {
+    font-size: 0.65rem;
+    font-weight: 500;
+    background-color: #dee2e6;
+    color: #495057;
+    min-width: 1.6rem;
+    flex-shrink: 0;
+}
+
+.local-omnicatalogue-option--selected .local-omnicatalogue-count {
+    background-color: var(--bs-primary);
+    color: #fff;
+}

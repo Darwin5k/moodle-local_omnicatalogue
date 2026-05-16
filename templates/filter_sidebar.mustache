@@ -1,33 +1,37 @@
 {{!
     @template local_omnicatalogue/filter_sidebar
-    A single filter facet accordion panel.
+    A single filter facet panel.
     Context: fieldid, fieldname, values[], hasactive
 }}
-<div class="local-omnicatalogue-facet mb-3 border rounded">
-  <button class="btn btn-link w-100 text-start d-flex justify-content-between align-items-center p-3 text-decoration-none text-dark"
+<div class="local-omnicatalogue-facet mb-1">
+  <button class="local-omnicatalogue-facet__header w-100 text-start d-flex justify-content-between align-items-center py-2 px-0 bg-transparent border-0"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#facet-{{fieldid}}"
           aria-expanded="{{#hasactive}}true{{/hasactive}}{{^hasactive}}false{{/hasactive}}">
-    <span class="fw-semibold">{{fieldname}}</span>
-    {{#hasactive}}<span class="badge bg-primary rounded-pill">&#10003;</span>{{/hasactive}}
+    <span class="d-flex align-items-center gap-2">
+      <span class="local-omnicatalogue-caret{{#hasactive}} local-omnicatalogue-caret--active{{/hasactive}}"></span>
+      <span class="small fw-semibold text-dark">{{fieldname}}</span>
+    </span>
   </button>
+
   <div id="facet-{{fieldid}}" class="collapse{{#hasactive}} show{{/hasactive}}">
-    <div class="px-3 pb-3" style="max-height: 260px; overflow-y: auto;">
+    <div class="local-omnicatalogue-facet__options pb-1" style="max-height: 240px; overflow-y: auto;">
       {{#values}}
-        <div class="form-check">
-          <input class="form-check-input"
-                 type="checkbox"
-                 name="f[{{filterid}}][]"
-                 value="{{value}}"
-                 id="facet-{{filterid}}-{{value}}"
-                 {{#selected}}checked{{/selected}}>
-          <label class="form-check-label d-flex justify-content-between" for="facet-{{filterid}}-{{value}}">
-            <span>{{value}}</span>
-            <span class="text-muted small">({{count}})</span>
-          </label>
-        </div>
+        <label class="local-omnicatalogue-option d-flex align-items-center justify-content-between py-1 px-2 rounded{{#selected}} local-omnicatalogue-option--selected{{/selected}}">
+          <span class="d-flex align-items-center gap-2">
+            <input class="form-check-input flex-shrink-0 mt-0"
+                   type="checkbox"
+                   name="f[{{filterid}}][]"
+                   value="{{value}}"
+                   {{#selected}}checked{{/selected}}>
+            <span class="small">{{value}}</span>
+          </span>
+          <span class="local-omnicatalogue-count badge rounded-pill">{{count}}</span>
+        </label>
       {{/values}}
     </div>
   </div>
+
+  <hr class="my-2">
 </div>

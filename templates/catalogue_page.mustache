@@ -13,27 +13,32 @@
         {{/filterparams}}
         <input type="hidden" name="page" value="0">
 
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <h5 class="mb-0">{{filterby}}</h5>
-          {{#hasfilters}}
-            <a href="{{clearurl}}" class="btn btn-sm btn-outline-secondary">{{clearfilters}}</a>
-          {{/hasfilters}}
+        <div class="local-omnicatalogue-sidebar-box card">
+          <div class="card-body p-3">
+            <div class="d-flex align-items-baseline justify-content-between mb-2">
+              <span class="local-omnicatalogue-sidebar__title">{{filterby}}</span>
+              {{#hasfilters}}
+                <a href="{{clearurl}}" class="local-omnicatalogue-sidebar__clear text-decoration-none small">{{clearfilters}}</a>
+              {{/hasfilters}}
+            </div>
+            <hr class="mt-0 mb-3">
+
+            {{#facets}}
+              {{> local_omnicatalogue/filter_sidebar}}
+            {{/facets}}
+
+            {{#hasfacets}}
+              <button type="submit" class="btn btn-primary btn-sm w-100 mt-2">{{applyfilters}}</button>
+            {{/hasfacets}}
+          </div>
         </div>
-
-        {{#facets}}
-          {{> local_omnicatalogue/filter_sidebar}}
-        {{/facets}}
-
-        {{#hasfacets}}
-          <button type="submit" class="btn btn-primary w-100 mt-3">{{applyfilters}}</button>
-        {{/hasfacets}}
       </form>
     </div>
 
     {{! Course grid }}
     <div class="col-md-9 col-lg-10">
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <span class="text-muted">{{resultstring}}</span>
+        <span class="text-muted small">{{resultstring}}</span>
       </div>
 
       {{#nocourses}}
@@ -54,7 +59,7 @@
                 <input type="hidden" name="{{name}}" value="{{value}}">
               {{/filterparams}}
               <input type="hidden" name="page" value="{{prevpage}}">
-              <button type="submit" class="btn btn-outline-primary">&laquo; Previous</button>
+              <button type="submit" class="btn btn-outline-primary btn-sm">&laquo; Previous</button>
             </form>
           {{/hasprev}}
           {{#hasnext}}
@@ -63,7 +68,7 @@
                 <input type="hidden" name="{{name}}" value="{{value}}">
               {{/filterparams}}
               <input type="hidden" name="page" value="{{nextpage}}">
-              <button type="submit" class="btn btn-outline-primary">Next &raquo;</button>
+              <button type="submit" class="btn btn-outline-primary btn-sm">Next &raquo;</button>
             </form>
           {{/hasnext}}
         </div>
