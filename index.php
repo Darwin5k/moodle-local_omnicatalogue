@@ -60,9 +60,14 @@ $PAGE->set_title(get_string('catalogue', 'local_omnicatalogue'));
 $PAGE->set_heading(get_string('catalogue', 'local_omnicatalogue'));
 $PAGE->set_pagelayout('base');
 
+$display    = catalogue::get_card_display_settings();
 $facets     = catalogue::get_facets($activefilters);
 $result     = catalogue::get_courses($activefilters, $page, $perpage);
 $cardfields = catalogue::get_card_fields();
+
+// Pre-fetch enrolment data once for the whole page (avoids N+1 per card).
+$enrolledids = $display['showenrolstatus'] ? catalogue::get_enrolled_course_ids() : [];
+$completedids = $display['showenrolstatus'] ? catalogue::get_completed_course_ids() : [];
 
 // Build course card data.
 $cards = [];
@@ -76,16 +81,37 @@ foreach ($result['courses'] as $course) {
     if (core_text::strlen($summary) > 200) {
         $summary = core_text::substr($summary, 0, 200) . '…';
     }
-    $fieldvalues = catalogue::get_course_card_fieldvalues($course, $cardfields);
+
+    $fieldvalues   = catalogue::get_course_card_fieldvalues($course, $cardfields);
+    $contacts      = $display['showcontacts'] ? catalogue::get_course_contacts_string($course) : '';
+    $enroltype     = $display['showenroltype'] ? catalogue::get_course_enrol_type($course) : '';
+    $iscompleted   = $display['showenrolstatus'] && in_array((int)$course->id, $completedids, true);
+    $isenrolled    = $display['showenrolstatus'] && in_array((int)$course->id, $enrolledids, true);
+    $enrolledonly  = $isenrolled && !$iscompleted;
+
     $cards[] = [
-        'id'             => $course->id,
-        'fullname'       => format_string($course->fullname),
-        'summary'        => $summary,
-        'category'       => format_string($course->categoryname),
-        'courseurl'      => (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false),
-        'imageurl'       => catalogue::get_course_image_url($course),
-        'hasfieldvalues' => !empty($fieldvalues),
-        'fieldvalues'    => array_values($fieldvalues),
+        // Display setting flags (same for every card but needed by the template).
+        'showimage'       => $display['showimage'],
+        'showsummary'     => $display['showsummary'],
+        'showcategory'    => $display['showcategory'],
+        'showcontacts'    => $display['showcontacts'],
+        'showenroltype'   => $display['showenroltype'],
+        'showenrolstatus' => $display['showenrolstatus'],
+        // Course data.
+        'id'              => $course->id,
+        'fullname'        => format_string($course->fullname),
+        'summary'         => $summary,
+        'category'        => format_string($course->categoryname),
+        'courseurl'       => (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false),
+        'imageurl'        => catalogue::get_course_image_url($course),
+        'hasfieldvalues'  => !empty($fieldvalues),
+        'fieldvalues'     => array_values($fieldvalues),
+        // New optional fields.
+        'contacts'        => $contacts,
+        'enroltype'       => $enroltype,
+        'completed'       => $iscompleted,
+        'enrolledonly'    => $enrolledonly,
+        'hasbadges'       => $iscompleted || $enrolledonly || ($enroltype !== ''),
     ];
 }
 
@@ -115,7 +141,6 @@ $templatecontext = [
     'filterby'      => get_string('filterby', 'local_omnicatalogue'),
 ];
 
-// Initialise the AJAX module, passing the strings it needs for client-side renders.
 $PAGE->requires->js_call_amd('local_omnicatalogue/catalogue', 'init', [[
     'baseUrl'     => $baseurl->out(false),
     'perpage'     => $perpage,

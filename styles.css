@@ -88,6 +88,41 @@
 }
 
 /* ==========================================================================
+   Course card
+   ========================================================================== */
+
+.local-omnicatalogue-card-img {
+    height: 160px;
+    object-fit: cover;
+}
+
+/* Enrolment status badges */
+.local-omnicatalogue-badge--completed {
+    background-color: #198754;
+    color: #fff;
+}
+
+.local-omnicatalogue-badge--enrolled {
+    background-color: #0dcaf0;
+    color: #000;
+}
+
+.local-omnicatalogue-badge--enroltype {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+/* Course contacts row */
+.local-omnicatalogue-contacts {
+    border-top: 1px solid #f0f0f0;
+}
+
+.local-omnicatalogue-contacts__icon {
+    margin-right: 0.2rem;
+}
+
+/* ==========================================================================
    Loading overlay — displayed over the course grid during AJAX requests
    ========================================================================== */
 

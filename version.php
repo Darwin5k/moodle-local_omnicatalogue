@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'local_omnicatalogue';
-$plugin->version      = 2026051501;
+$plugin->version      = 2026051502;
 $plugin->requires     = 2025092600;
 $plugin->dependencies = ['customfield_omniselect' => 2026051402];
 $plugin->maturity     = MATURITY_ALPHA;
-$plugin->release      = '1.1.0';
+$plugin->release      = '1.2.0';

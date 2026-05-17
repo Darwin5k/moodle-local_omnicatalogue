@@ -17,9 +17,6 @@
 /**
  * Admin settings for local_omnicatalogue.
  *
- * Dynamically generates a filter/card visibility toggle for every omniselect
- * custom field defined on courses.
- *
  * @package    local_omnicatalogue
  * @copyright  2026 Your Name <you@example.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,6 +28,7 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('local_omnicatalogue', get_string('settings', 'local_omnicatalogue'));
     $ADMIN->add('localplugins', $settings);
 
+    // General settings.
     $settings->add(new admin_setting_configtext(
         'local_omnicatalogue/perpage',
         get_string('perpage', 'local_omnicatalogue'),
@@ -39,7 +37,62 @@ if ($hassiteconfig) {
         PARAM_INT
     ));
 
-    // Dynamically add a toggle per omniselect field for filter sidebar and course cards.
+    // Card display options.
+    $settings->add(new admin_setting_heading(
+        'local_omnicatalogue/carddisplay_heading',
+        get_string('carddisplay', 'local_omnicatalogue'),
+        get_string('carddisplay_desc', 'local_omnicatalogue')
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/card_showimage',
+        get_string('card_showimage', 'local_omnicatalogue'),
+        get_string('card_showimage_desc', 'local_omnicatalogue'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/card_showsummary',
+        get_string('card_showsummary', 'local_omnicatalogue'),
+        get_string('card_showsummary_desc', 'local_omnicatalogue'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/card_showcategory',
+        get_string('card_showcategory', 'local_omnicatalogue'),
+        get_string('card_showcategory_desc', 'local_omnicatalogue'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/card_showcontacts',
+        get_string('card_showcontacts', 'local_omnicatalogue'),
+        get_string('card_showcontacts_desc', 'local_omnicatalogue'),
+        0
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/card_showenroltype',
+        get_string('card_showenroltype', 'local_omnicatalogue'),
+        get_string('card_showenroltype_desc', 'local_omnicatalogue'),
+        0
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/card_showenrolstatus',
+        get_string('card_showenrolstatus', 'local_omnicatalogue'),
+        get_string('card_showenrolstatus_desc', 'local_omnicatalogue'),
+        0
+    ));
+
+    // Custom field filters and card fields.
+    $settings->add(new admin_setting_heading(
+        'local_omnicatalogue/filterfields_heading',
+        get_string('filterfields', 'local_omnicatalogue'),
+        get_string('filterfields_desc', 'local_omnicatalogue')
+    ));
+
     try {
         $handler = \core_course\customfield\course_handler::create();
         $fields  = $handler->get_fields();

@@ -90,9 +90,14 @@ class get_catalogue extends external_api {
         $perpage = (int)(get_config('local_omnicatalogue', 'perpage') ?: 20);
         $page    = max(0, (int)$params['page']);
 
+        $display    = catalogue::get_card_display_settings();
         $facets     = catalogue::get_facets($activefilters);
         $result     = catalogue::get_courses($activefilters, $page, $perpage);
         $cardfields = catalogue::get_card_fields();
+
+        // Pre-fetch enrolment data once for the whole response.
+        $enrolledids  = $display['showenrolstatus'] ? catalogue::get_enrolled_course_ids() : [];
+        $completedids = $display['showenrolstatus'] ? catalogue::get_completed_course_ids() : [];
 
         // Build course card data (mirrors index.php logic).
         $courses = [];
@@ -107,16 +112,33 @@ class get_catalogue extends external_api {
                 $summary = \core_text::substr($summary, 0, 200) . '…';
             }
 
-            $fieldvalues = catalogue::get_course_card_fieldvalues($course, $cardfields);
-            $courses[]   = [
-                'id'             => (int)$course->id,
-                'fullname'       => format_string($course->fullname),
-                'summary'        => $summary,
-                'category'       => format_string($course->categoryname),
-                'courseurl'      => (new \moodle_url('/course/view.php', ['id' => $course->id]))->out(false),
-                'imageurl'       => catalogue::get_course_image_url($course),
-                'hasfieldvalues' => !empty($fieldvalues),
-                'fieldvalues'    => array_values($fieldvalues),
+            $fieldvalues  = catalogue::get_course_card_fieldvalues($course, $cardfields);
+            $contacts     = $display['showcontacts'] ? catalogue::get_course_contacts_string($course) : '';
+            $enroltype    = $display['showenroltype'] ? catalogue::get_course_enrol_type($course) : '';
+            $iscompleted  = $display['showenrolstatus'] && in_array((int)$course->id, $completedids, true);
+            $isenrolled   = $display['showenrolstatus'] && in_array((int)$course->id, $enrolledids, true);
+            $enrolledonly = $isenrolled && !$iscompleted;
+
+            $courses[] = [
+                'showimage'       => $display['showimage'],
+                'showsummary'     => $display['showsummary'],
+                'showcategory'    => $display['showcategory'],
+                'showcontacts'    => $display['showcontacts'],
+                'showenroltype'   => $display['showenroltype'],
+                'showenrolstatus' => $display['showenrolstatus'],
+                'id'              => (int)$course->id,
+                'fullname'        => format_string($course->fullname),
+                'summary'         => $summary,
+                'category'        => format_string($course->categoryname),
+                'courseurl'       => (new \moodle_url('/course/view.php', ['id' => $course->id]))->out(false),
+                'imageurl'        => catalogue::get_course_image_url($course),
+                'hasfieldvalues'  => !empty($fieldvalues),
+                'fieldvalues'     => array_values($fieldvalues),
+                'contacts'        => $contacts,
+                'enroltype'       => $enroltype,
+                'completed'       => $iscompleted,
+                'enrolledonly'    => $enrolledonly,
+                'hasbadges'       => $iscompleted || $enrolledonly || ($enroltype !== ''),
             ];
         }
 
@@ -167,14 +189,28 @@ class get_catalogue extends external_api {
         ]);
 
         $coursedef = new external_single_structure([
-            'id'             => new external_value(PARAM_INT, 'Course ID'),
-            'fullname'       => new external_value(PARAM_TEXT, 'Course full name'),
-            'summary'        => new external_value(PARAM_RAW, 'Plain-text summary excerpt'),
-            'category'       => new external_value(PARAM_TEXT, 'Category name'),
-            'courseurl'      => new external_value(PARAM_URL, 'URL to the course page'),
-            'imageurl'       => new external_value(PARAM_RAW, 'URL or data URI of the course overview image'),
-            'hasfieldvalues' => new external_value(PARAM_BOOL, 'Whether any card fields have values'),
-            'fieldvalues'    => new external_multiple_structure($fieldvaluedef),
+            // Display setting flags.
+            'showimage'       => new external_value(PARAM_BOOL, 'Show course image'),
+            'showsummary'     => new external_value(PARAM_BOOL, 'Show course summary'),
+            'showcategory'    => new external_value(PARAM_BOOL, 'Show category name'),
+            'showcontacts'    => new external_value(PARAM_BOOL, 'Show course contacts'),
+            'showenroltype'   => new external_value(PARAM_BOOL, 'Show enrolment type badge'),
+            'showenrolstatus' => new external_value(PARAM_BOOL, 'Show enrolment status badge'),
+            // Course data.
+            'id'              => new external_value(PARAM_INT, 'Course ID'),
+            'fullname'        => new external_value(PARAM_TEXT, 'Course full name'),
+            'summary'         => new external_value(PARAM_RAW, 'Plain-text summary excerpt'),
+            'category'        => new external_value(PARAM_TEXT, 'Category name'),
+            'courseurl'       => new external_value(PARAM_URL, 'URL to the course page'),
+            'imageurl'        => new external_value(PARAM_RAW, 'URL or data URI of the course overview image'),
+            'hasfieldvalues'  => new external_value(PARAM_BOOL, 'Whether any card fields have values'),
+            'fieldvalues'     => new external_multiple_structure($fieldvaluedef),
+            // New optional fields.
+            'contacts'        => new external_value(PARAM_TEXT, 'Comma-separated course contact names'),
+            'enroltype'       => new external_value(PARAM_TEXT, 'Short enrolment method label'),
+            'completed'       => new external_value(PARAM_BOOL, 'Whether the current user has completed this course'),
+            'enrolledonly'    => new external_value(PARAM_BOOL, 'Whether the user is enrolled but not yet completed'),
+            'hasbadges'       => new external_value(PARAM_BOOL, 'Whether any badge should be shown on the card'),
         ]);
 
         return new external_single_structure([
