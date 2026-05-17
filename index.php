@@ -29,14 +29,15 @@ require_capability('local/omnicatalogue:view', context_system::instance());
 
 use local_omnicatalogue\catalogue;
 
-// Parse filter params: f[fieldid][] = value.
+// Parse filter params: f[facetkey][] = value.
 // optional_param_array() cannot handle nested arrays, so read $_GET directly
 // and sanitize each scalar value individually with clean_param().
+// Facet keys follow the scheme: cf_{id}, cat, et, tg_{id}.
 $rawf = (isset($_GET['f']) && is_array($_GET['f'])) ? $_GET['f'] : [];
 $activefilters = [];
-foreach ($rawf as $fieldid => $values) {
-    $fieldid = (int)$fieldid;
-    if ($fieldid <= 0 || !is_array($values)) {
+foreach ($rawf as $facetkey => $values) {
+    $facetkey = clean_param($facetkey, PARAM_ALPHANUMEXT);
+    if ($facetkey === '' || !is_array($values)) {
         continue;
     }
     $clean = [];
@@ -47,7 +48,7 @@ foreach ($rawf as $fieldid => $values) {
         }
     }
     if (!empty($clean)) {
-        $activefilters[$fieldid] = $clean;
+        $activefilters[$facetkey] = $clean;
     }
 }
 

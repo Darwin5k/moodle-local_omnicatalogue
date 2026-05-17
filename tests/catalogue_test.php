@@ -90,7 +90,7 @@ final class catalogue_test extends advanced_testcase {
     public function test_get_facets_marks_active_filters_selected(): void {
         $this->create_course_with_values(['North']);
 
-        $facets  = catalogue::get_facets([$this->fieldid => ['North']]);
+        $facets  = catalogue::get_facets(['cf_' . $this->fieldid => ['North']]);
         $byvalue = array_column($facets[0]['values'], null, 'value');
 
         $this->assertTrue($byvalue['North']['selected']);
@@ -130,7 +130,7 @@ final class catalogue_test extends advanced_testcase {
         $c1 = $this->create_course_with_values(['North']);
         $c2 = $this->create_course_with_values(['South']);
 
-        $result = catalogue::get_courses([$this->fieldid => ['North']]);
+        $result = catalogue::get_courses(['cf_' . $this->fieldid => ['North']]);
 
         $this->assertSame(1, $result['total']);
         $this->assertSame($c1->id, $result['courses'][0]->id);
@@ -144,7 +144,7 @@ final class catalogue_test extends advanced_testcase {
         $c2 = $this->create_course_with_values(['South']);
         $c3 = $this->create_course_with_values(['East']);
 
-        $result = catalogue::get_courses([$this->fieldid => ['North', 'South']]);
+        $result = catalogue::get_courses(['cf_' . $this->fieldid => ['North', 'South']]);
 
         $this->assertSame(2, $result['total']);
         $ids = array_column($result['courses'], 'id');

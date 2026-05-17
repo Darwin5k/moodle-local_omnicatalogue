@@ -20,6 +20,10 @@
  * local_omnicatalogue_get_catalogue web service, and re-renders the facet
  * sidebar and course grid in place without a full page reload.
  *
+ * Filter checkboxes use the name format f[facetkey][] where facetkey follows
+ * the scheme: cf_{id} (custom field), cat (category), et (enrolment type),
+ * tg_{id} (tag group).
+ *
  * @module     local_omnicatalogue/catalogue
  * @copyright  2026 Your Name <you@example.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -40,13 +44,14 @@ define([
         page:        0,
     };
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    // Helpers.
 
     /**
      * Reads all checked filter checkboxes from the form and returns them as
-     * the [{fieldid, values}] array the web service expects.
+     * the [{facetkey, values}] array the web service expects.
+     *
+     * Checkbox names follow the pattern f[facetkey][] where facetkey is an
+     * alphanumeric-plus-underscore string (e.g. cf_3, cat, et, tg_7).
      *
      * @param  {HTMLFormElement} form
      * @return {Array}
@@ -54,25 +59,25 @@ define([
     var collectFilters = function(form) {
         var filters = {};
         form.querySelectorAll('input[type="checkbox"]:checked').forEach(function(cb) {
-            var match = cb.name.match(/^f\[(\d+)\]\[\]$/);
+            var match = cb.name.match(/^f\[([a-zA-Z0-9_]+)\]\[\]$/);
             if (match) {
-                var fid = parseInt(match[1], 10);
-                if (!filters[fid]) {
-                    filters[fid] = [];
+                var fkey = match[1];
+                if (!filters[fkey]) {
+                    filters[fkey] = [];
                 }
-                filters[fid].push(cb.value);
+                filters[fkey].push(cb.value);
             }
         });
-        return Object.keys(filters).map(function(fid) {
-            return {fieldid: parseInt(fid, 10), values: filters[fid]};
+        return Object.keys(filters).map(function(fkey) {
+            return {facetkey: fkey, values: filters[fkey]};
         });
     };
 
     /**
      * Builds a bookmarkable catalogue URL from the given filter state and page.
-     * Uses the f[fieldid][] query-string format PHP expects.
+     * Uses the f[facetkey][] query-string format PHP expects.
      *
-     * @param  {Array}  filters [{fieldid, values}]
+     * @param  {Array}  filters [{facetkey, values}]
      * @param  {number} page
      * @return {string}
      */
@@ -80,7 +85,7 @@ define([
         var parts = ['page=' + page];
         filters.forEach(function(f) {
             f.values.forEach(function(v) {
-                parts.push('f[' + f.fieldid + '][]=' + encodeURIComponent(v));
+                parts.push('f[' + f.facetkey + '][]=' + encodeURIComponent(v));
             });
         });
         return Config.baseUrl + (parts.length ? '?' + parts.join('&') : '');
@@ -98,16 +103,14 @@ define([
         }
     };
 
-    // -------------------------------------------------------------------------
-    // Core fetch-and-render cycle
-    // -------------------------------------------------------------------------
+    // Core fetch-and-render cycle.
 
     /**
      * Calls the external function for the given filter state and page, then
      * re-renders the facets sidebar and course grid in place.
      *
      * @param {HTMLFormElement} form        The filter form element.
-     * @param {Array}           filters     [{fieldid, values}]
+     * @param {Array}           filters     [{facetkey, values}]
      * @param {number}          page        Zero-based page number.
      * @param {boolean}         pushState   Whether to push a new browser history entry.
      */
@@ -205,9 +208,7 @@ define([
         });
     };
 
-    // -------------------------------------------------------------------------
-    // Public API
-    // -------------------------------------------------------------------------
+    // Public API.
 
     return {
 

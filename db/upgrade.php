@@ -29,10 +29,43 @@
  * @return bool
  */
 function xmldb_local_omnicatalogue_upgrade(int $oldversion): bool {
+    global $DB;
+
+    $dbman = $DB->get_manager();
 
     if ($oldversion < 2026051401) {
         // No schema changes in this release — version bump only.
         upgrade_plugin_savepoint(true, 2026051401, 'local', 'omnicatalogue');
+    }
+
+    if ($oldversion < 2026051503) {
+        // Create tag groups table.
+        $table = new xmldb_table('local_omnicatalogue_taggroups');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Create tag-to-group mapping table.
+        $table = new xmldb_table('local_omnicatalogue_tgroup_tags');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('groupid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('tagid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_groupid', XMLDB_KEY_FOREIGN, ['groupid'], 'local_omnicatalogue_taggroups', ['id']);
+        $table->add_index('uniq_group_tag', XMLDB_INDEX_UNIQUE, ['groupid', 'tagid']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026051503, 'local', 'omnicatalogue');
     }
 
     return true;

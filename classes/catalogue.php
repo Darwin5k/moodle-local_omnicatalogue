@@ -27,6 +27,19 @@ namespace local_omnicatalogue;
 /**
  * Provides course catalogue data: facets, filtered course lists, and card content.
  *
+ * ### Facet key scheme
+ *
+ * Every filter facet is identified by a string key that encodes both the facet
+ * type and (where needed) its database ID:
+ *
+ *  - `cf_{id}`  — omniselect custom field (e.g. `cf_3`)
+ *  - `cat`      — course category
+ *  - `et`       — enrolment type
+ *  - `tg_{id}`  — tag group (e.g. `tg_7`)
+ *
+ * The key is used as-is in URL query strings (`f[cf_3][]=value`), in the
+ * external-function wire format, and as the array key in `$activefilters`.
+ *
  * @package    local_omnicatalogue
  * @copyright  2026 Your Name <you@example.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -113,17 +126,26 @@ class catalogue {
     /**
      * Returns facet data for the filter sidebar.
      *
-     * Each facet contains the field name, a list of values with counts, and which
-     * values are currently selected according to $activefilters.
+     * Facets are sourced from four places (in order): omniselect custom fields,
+     * course category (if enabled), enrolment type (if enabled), and tag groups.
      *
-     * @param array $activefilters Keyed by field ID, values are arrays of selected strings.
+     * Each facet value carries a raw `value` (used as the form checkbox value and
+     * for filtering) and a `label` (displayed to the user — may differ for
+     * categories and tags where the raw value is an ID).
+     *
+     * @param array $activefilters Keyed by facet key (string), values are arrays of selected strings.
      * @return array
      */
     public static function get_facets(array $activefilters = []): array {
         global $DB;
 
         $facets = [];
+
+        // Omniselect custom field facets.
         foreach (self::get_filter_fields() as $fieldid => $field) {
+            $facetkey = 'cf_' . $fieldid;
+            $selected = $activefilters[$facetkey] ?? [];
+
             $sql = "SELECT oo.id AS optionid, oo.value, COUNT(DISTINCT omv.instanceid) AS cnt
                       FROM {customfield_omniselect_vals} omv
                       JOIN {customfield_omniselect_opts} oo ON oo.id = omv.optionid
@@ -134,25 +156,143 @@ class catalogue {
                   GROUP BY oo.id, oo.value
                   ORDER BY oo.value ASC";
 
-            $rows     = $DB->get_records_sql($sql, ['fieldid' => $fieldid, 'siteid' => SITEID]);
-            $selected = $activefilters[$fieldid] ?? [];
-
+            $rows   = $DB->get_records_sql($sql, ['fieldid' => $fieldid, 'siteid' => SITEID]);
             $values = [];
             foreach ($rows as $row) {
                 $values[] = [
                     'value'    => $row->value,
+                    'label'    => $row->value,
                     'count'    => (int)$row->cnt,
                     'selected' => in_array($row->value, $selected, true),
-                    'filterid' => $fieldid,
+                    'facetkey' => $facetkey,
                 ];
             }
 
             if (!empty($values)) {
                 $facets[] = [
-                    'fieldid'   => $fieldid,
+                    'facetkey'  => $facetkey,
                     'fieldname' => $field->get_formatted_name(),
-                    'values'    => $values,
                     'hasactive' => !empty($selected),
+                    'values'    => $values,
+                ];
+            }
+        }
+
+        // Course category facet (optional).
+        if (get_config('local_omnicatalogue', 'facet_category')) {
+            $facetkey = 'cat';
+            $selected = $activefilters[$facetkey] ?? [];
+
+            $sql = "SELECT c.category, cat.name, COUNT(DISTINCT c.id) AS cnt
+                      FROM {course} c
+                      JOIN {course_categories} cat ON cat.id = c.category
+                     WHERE c.visible = 1
+                       AND c.id <> :siteid
+                  GROUP BY c.category, cat.name
+                  ORDER BY cat.name ASC";
+
+            $rows   = $DB->get_records_sql($sql, ['siteid' => SITEID]);
+            $values = [];
+            foreach ($rows as $row) {
+                $catid    = (string)$row->category;
+                $values[] = [
+                    'value'    => $catid,
+                    'label'    => format_string($row->name),
+                    'count'    => (int)$row->cnt,
+                    'selected' => in_array($catid, $selected, true),
+                    'facetkey' => $facetkey,
+                ];
+            }
+
+            if (!empty($values)) {
+                $facets[] = [
+                    'facetkey'  => $facetkey,
+                    'fieldname' => get_string('category', 'local_omnicatalogue'),
+                    'hasactive' => !empty($selected),
+                    'values'    => $values,
+                ];
+            }
+        }
+
+        // Enrolment type facet (optional).
+        if (get_config('local_omnicatalogue', 'facet_enroltype')) {
+            $facetkey = 'et';
+            $selected = $activefilters[$facetkey] ?? [];
+
+            $sql = "SELECT e.enrol, COUNT(DISTINCT e.courseid) AS cnt
+                      FROM {enrol} e
+                      JOIN {course} c ON c.id = e.courseid
+                     WHERE e.status = 0
+                       AND c.visible = 1
+                       AND c.id <> :siteid
+                  GROUP BY e.enrol
+                  ORDER BY e.enrol ASC";
+
+            $rows   = $DB->get_records_sql($sql, ['siteid' => SITEID]);
+            $values = [];
+            foreach ($rows as $row) {
+                $component = 'enrol_' . $row->enrol;
+                if (get_string_manager()->string_exists('pluginname', $component)) {
+                    $label = get_string('pluginname', $component);
+                } else {
+                    $label = ucfirst($row->enrol);
+                }
+                $values[] = [
+                    'value'    => $row->enrol,
+                    'label'    => $label,
+                    'count'    => (int)$row->cnt,
+                    'selected' => in_array($row->enrol, $selected, true),
+                    'facetkey' => $facetkey,
+                ];
+            }
+
+            if (!empty($values)) {
+                $facets[] = [
+                    'facetkey'  => $facetkey,
+                    'fieldname' => get_string('enroltype', 'local_omnicatalogue'),
+                    'hasactive' => !empty($selected),
+                    'values'    => $values,
+                ];
+            }
+        }
+
+        // Tag group facets.
+        $taggroups = $DB->get_records('local_omnicatalogue_taggroups', null, 'sortorder ASC, name ASC');
+        foreach ($taggroups as $group) {
+            $facetkey = 'tg_' . $group->id;
+            $selected = $activefilters[$facetkey] ?? [];
+
+            $sql = "SELECT t.id AS tagid, t.name, COUNT(DISTINCT ti.itemid) AS cnt
+                      FROM {local_omnicatalogue_tgroup_tags} tgt
+                      JOIN {tag} t ON t.id = tgt.tagid
+                      JOIN {tag_instance} ti ON ti.tagid = t.id
+                      JOIN {course} c ON c.id = ti.itemid
+                     WHERE tgt.groupid = :groupid
+                       AND ti.itemtype = 'course'
+                       AND c.visible = 1
+                       AND c.id <> :siteid
+                  GROUP BY t.id, t.name
+                  ORDER BY t.name ASC";
+
+            $rows   = $DB->get_records_sql($sql, ['groupid' => $group->id, 'siteid' => SITEID]);
+            $values = [];
+            foreach ($rows as $row) {
+                $tagidstr = (string)$row->tagid;
+                $values[] = [
+                    'value'    => $tagidstr,
+                    'label'    => $row->name,
+                    'count'    => (int)$row->cnt,
+                    'selected' => in_array($tagidstr, $selected, true),
+                    'facetkey' => $facetkey,
+                ];
+            }
+
+            if (!empty($values)) {
+                $facets[] = [
+                    'facetkey'  => $facetkey,
+                    'fieldname' => format_string($group->name),
+                    'hasactive' => !empty($selected),
+                    'values'    => $values,
                 ];
             }
         }
@@ -165,11 +305,10 @@ class catalogue {
     /**
      * Returns a paginated list of visible courses matching the given filters.
      *
-     * Filters are ANDed between facets and ORed within a facet. Active filters
-     * carry option display strings (from the URL); the query joins with
-     * customfield_omniselect_opts to translate strings to option IDs on the fly.
+     * Filters are ANDed between facets and ORed within a facet. The filter key
+     * determines the join strategy (see class-level docblock for the key scheme).
      *
-     * @param array $activefilters Keyed by field ID, values are arrays of selected strings.
+     * @param array $activefilters Keyed by facet key (string), values are arrays of selected strings.
      * @param int   $page          Zero-based page number.
      * @param int   $perpage       Rows per page.
      * @return array{courses: \stdClass[], total: int}
@@ -179,35 +318,76 @@ class catalogue {
 
         $params = ['siteid' => SITEID];
         $joins  = [];
+        $wheres = [];
         $i      = 0;
 
-        foreach ($activefilters as $fieldid => $values) {
+        foreach ($activefilters as $facetkey => $values) {
             if (empty($values)) {
                 continue;
             }
             $i++;
-            [$insql, $inparams] = $DB->get_in_or_equal(
-                array_values($values),
-                SQL_PARAMS_NAMED,
-                "v{$i}_"
-            );
-            $joins[] = "JOIN {customfield_omniselect_vals} omv{$i}
-                          ON omv{$i}.instanceid = c.id
-                         AND omv{$i}.fieldid = :fid{$i}
-                        JOIN {customfield_omniselect_opts} oo{$i}
-                          ON oo{$i}.id = omv{$i}.optionid
-                         AND oo{$i}.value {$insql}";
-            $params["fid{$i}"] = (int)$fieldid;
-            $params             = array_merge($params, $inparams);
+
+            if (str_starts_with($facetkey, 'cf_')) {
+                // Omniselect custom field filter: match on option display value.
+                $fieldid = (int)substr($facetkey, 3);
+                [$insql, $inparams] = $DB->get_in_or_equal(
+                    array_values($values),
+                    SQL_PARAMS_NAMED,
+                    "v{$i}_"
+                );
+                $joins[] = "JOIN {customfield_omniselect_vals} omv{$i}
+                              ON omv{$i}.instanceid = c.id
+                             AND omv{$i}.fieldid = :fid{$i}
+                            JOIN {customfield_omniselect_opts} oo{$i}
+                              ON oo{$i}.id = omv{$i}.optionid
+                             AND oo{$i}.value {$insql}";
+                $params["fid{$i}"] = $fieldid;
+                $params             = array_merge($params, $inparams);
+            } else if ($facetkey === 'cat') {
+                // Category filter: restrict by category ID directly on {course}.
+                [$insql, $inparams] = $DB->get_in_or_equal(
+                    array_map('intval', $values),
+                    SQL_PARAMS_NAMED,
+                    "cat{$i}_"
+                );
+                $wheres[] = "c.category {$insql}";
+                $params   = array_merge($params, $inparams);
+            } else if ($facetkey === 'et') {
+                // Enrolment type filter: course must have an active instance of the type.
+                [$insql, $inparams] = $DB->get_in_or_equal(
+                    array_values($values),
+                    SQL_PARAMS_NAMED,
+                    "et{$i}_"
+                );
+                $joins[] = "JOIN {enrol} enr{$i}
+                              ON enr{$i}.courseid = c.id
+                             AND enr{$i}.status = 0
+                             AND enr{$i}.enrol {$insql}";
+                $params  = array_merge($params, $inparams);
+            } else if (str_starts_with($facetkey, 'tg_')) {
+                // Tag group filter: course must be tagged with at least one of the selected tag IDs.
+                [$insql, $inparams] = $DB->get_in_or_equal(
+                    array_map('intval', $values),
+                    SQL_PARAMS_NAMED,
+                    "tg{$i}_"
+                );
+                $joins[] = "JOIN {tag_instance} ti{$i}
+                              ON ti{$i}.itemid = c.id
+                             AND ti{$i}.itemtype = 'course'
+                             AND ti{$i}.tagid {$insql}";
+                $params  = array_merge($params, $inparams);
+            }
         }
 
-        $joinsql = implode("\n", $joins);
+        $joinsql  = implode("\n", $joins);
+        $wheresql = $wheres ? 'AND ' . implode(' AND ', $wheres) : '';
 
         $countsql = "SELECT COUNT(DISTINCT c.id)
                        FROM {course} c
                             {$joinsql}
                       WHERE c.visible = 1
-                        AND c.id <> :siteid";
+                        AND c.id <> :siteid
+                            {$wheresql}";
 
         $selectsql = "SELECT DISTINCT c.id, c.fullname, c.shortname,
                              c.summary, c.summaryformat, c.enablecompletion,
@@ -217,6 +397,7 @@ class catalogue {
                              {$joinsql}
                        WHERE c.visible = 1
                          AND c.id <> :siteid
+                             {$wheresql}
                     ORDER BY c.fullname ASC";
 
         $total   = $DB->count_records_sql($countsql, $params);
@@ -348,7 +529,6 @@ class catalogue {
             return '';
         }
 
-        // Preferred display order.
         $priority = ['self' => 1, 'guest' => 2, 'fee' => 3];
         $best     = null;
         $bestrank = PHP_INT_MAX;
@@ -365,10 +545,9 @@ class catalogue {
             $best = reset($instances);
         }
 
-        $stringkey = 'pluginname';
         $component = 'enrol_' . $best->enrol;
-        if (get_string_manager()->string_exists($stringkey, $component)) {
-            return get_string($stringkey, $component);
+        if (get_string_manager()->string_exists('pluginname', $component)) {
+            return get_string('pluginname', $component);
         }
 
         return ucfirst($best->enrol);
@@ -408,11 +587,17 @@ class catalogue {
     /**
      * Builds a catalogue URL for the given page, preserving active filters.
      *
-     * @param array $activefilters Keyed by field ID, values are arrays of strings.
+     * @param array $activefilters Keyed by facet key, values are arrays of strings.
      * @param int   $page          Zero-based page number.
      * @return \moodle_url
      */
     public static function build_filter_url(array $activefilters, int $page = 0): \moodle_url {
-        return new \moodle_url('/local/omnicatalogue/index.php', ['page' => $page]);
+        $params = ['page' => $page];
+        foreach ($activefilters as $facetkey => $values) {
+            foreach ($values as $v) {
+                $params["f[{$facetkey}][]"] = $v;
+            }
+        }
+        return new \moodle_url('/local/omnicatalogue/index.php', $params);
     }
 }

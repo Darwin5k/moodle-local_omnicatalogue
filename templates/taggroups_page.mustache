@@ -1,0 +1,66 @@
+{{!
+    @template local_omnicatalogue/taggroups_page
+
+    Tag group management list page.
+
+    Context variables:
+    * addurl    - URL to the add-group form.
+    * addgroup  - translated "Add tag group" label.
+    * hasgroups - boolean; true when at least one group exists.
+    * nogroups  - translated empty-state message.
+    * groupname - translated column header.
+    * tagcount  - translated column header.
+    * groups    - array of {name, tagcount, editurl, deleteurl, deleteconfirm}.
+}}
+<div class="local-omnicatalogue-taggroups">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{{addurl}}" class="btn btn-primary">{{addgroup}}</a>
+  </div>
+
+  {{#hasgroups}}
+    <table class="table table-hover generaltable">
+      <thead>
+        <tr>
+          <th scope="col">{{groupname}}</th>
+          <th scope="col">{{tagcount}}</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#groups}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{tagcount}}</td>
+            <td class="text-end">
+              <a href="{{editurl}}" class="btn btn-sm btn-outline-secondary me-1">
+                {{#str}}edit{{/str}}
+              </a>
+              <a href="{{deleteurl}}"
+                 class="btn btn-sm btn-outline-danger"
+                 data-confirm="{{deleteconfirm}}">
+                {{#str}}delete{{/str}}
+              </a>
+            </td>
+          </tr>
+        {{/groups}}
+      </tbody>
+    </table>
+  {{/hasgroups}}
+
+  {{^hasgroups}}
+    <p class="text-muted">{{nogroups}}</p>
+  {{/hasgroups}}
+
+</div>
+
+{{! Confirm delete via data attribute to avoid inline JS with unescaped strings. }}
+<script>
+document.querySelectorAll('a[data-confirm]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+        if (!confirm(this.dataset.confirm)) {
+            e.preventDefault();
+        }
+    });
+});
+</script>

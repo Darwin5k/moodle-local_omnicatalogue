@@ -28,6 +28,14 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('local_omnicatalogue', get_string('settings', 'local_omnicatalogue'));
     $ADMIN->add('localplugins', $settings);
 
+    // Tag group management — separate admin external page.
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_omnicatalogue_taggroups',
+        get_string('managetaggroups', 'local_omnicatalogue'),
+        new moodle_url('/local/omnicatalogue/taggroups.php'),
+        'local/omnicatalogue:managecatalogue'
+    ));
+
     // General settings.
     $settings->add(new admin_setting_configtext(
         'local_omnicatalogue/perpage',
@@ -83,6 +91,27 @@ if ($hassiteconfig) {
         'local_omnicatalogue/card_showenrolstatus',
         get_string('card_showenrolstatus', 'local_omnicatalogue'),
         get_string('card_showenrolstatus_desc', 'local_omnicatalogue'),
+        0
+    ));
+
+    // Additional filter facets.
+    $settings->add(new admin_setting_heading(
+        'local_omnicatalogue/additionalfacets_heading',
+        get_string('additionalfacets', 'local_omnicatalogue'),
+        get_string('additionalfacets_desc', 'local_omnicatalogue')
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/facet_category',
+        get_string('facet_category', 'local_omnicatalogue'),
+        get_string('facet_category_desc', 'local_omnicatalogue'),
+        0
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/facet_enroltype',
+        get_string('facet_enroltype', 'local_omnicatalogue'),
+        get_string('facet_enroltype_desc', 'local_omnicatalogue'),
         0
     ));
 

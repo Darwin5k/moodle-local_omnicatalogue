@@ -49,8 +49,8 @@ class get_catalogue extends external_api {
         return new external_function_parameters([
             'filters' => new external_multiple_structure(
                 new external_single_structure([
-                    'fieldid' => new external_value(PARAM_INT, 'Custom field ID'),
-                    'values'  => new external_multiple_structure(
+                    'facetkey' => new external_value(PARAM_ALPHANUMEXT, 'Facet key (e.g. cf_3, cat, et, tg_7)'),
+                    'values'   => new external_multiple_structure(
                         new external_value(PARAM_NOTAGS, 'Selected filter value')
                     ),
                 ]),
@@ -65,7 +65,7 @@ class get_catalogue extends external_api {
     /**
      * Returns facets and course cards for the given filter state.
      *
-     * @param  array $filters Array of {fieldid, values[]} objects.
+     * @param  array $filters Array of {facetkey, values[]} objects.
      * @param  int   $page    Zero-based page number.
      * @return array
      */
@@ -79,11 +79,11 @@ class get_catalogue extends external_api {
         self::validate_context($context);
         require_capability('local/omnicatalogue:view', $context);
 
-        // Normalise [{fieldid, values}] → [fieldid => values].
+        // Normalise [{facetkey, values}] → [facetkey => values].
         $activefilters = [];
         foreach ($params['filters'] as $f) {
             if (!empty($f['values'])) {
-                $activefilters[(int)$f['fieldid']] = $f['values'];
+                $activefilters[$f['facetkey']] = $f['values'];
             }
         }
 
@@ -170,15 +170,16 @@ class get_catalogue extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         $valuedef = new external_single_structure([
-            'value'    => new external_value(PARAM_NOTAGS, 'Option display label'),
+            'value'    => new external_value(PARAM_NOTAGS, 'Raw filter value (ID or name string)'),
+            'label'    => new external_value(PARAM_TEXT, 'Human-readable display label'),
             'count'    => new external_value(PARAM_INT, 'Number of matching courses'),
             'selected' => new external_value(PARAM_BOOL, 'Whether this value is currently selected'),
-            'filterid' => new external_value(PARAM_INT, 'Field ID used in the checkbox name attribute'),
+            'facetkey' => new external_value(PARAM_ALPHANUMEXT, 'Facet key used in the checkbox name attribute'),
         ]);
 
         $facetdef = new external_single_structure([
-            'fieldid'   => new external_value(PARAM_INT, 'Custom field ID'),
-            'fieldname' => new external_value(PARAM_TEXT, 'Human-readable field name'),
+            'facetkey'  => new external_value(PARAM_ALPHANUMEXT, 'Facet key'),
+            'fieldname' => new external_value(PARAM_TEXT, 'Human-readable facet name'),
             'hasactive' => new external_value(PARAM_BOOL, 'Whether any values in this facet are selected'),
             'values'    => new external_multiple_structure($valuedef),
         ]);
@@ -189,14 +190,12 @@ class get_catalogue extends external_api {
         ]);
 
         $coursedef = new external_single_structure([
-            // Display setting flags.
             'showimage'       => new external_value(PARAM_BOOL, 'Show course image'),
             'showsummary'     => new external_value(PARAM_BOOL, 'Show course summary'),
             'showcategory'    => new external_value(PARAM_BOOL, 'Show category name'),
             'showcontacts'    => new external_value(PARAM_BOOL, 'Show course contacts'),
             'showenroltype'   => new external_value(PARAM_BOOL, 'Show enrolment type badge'),
             'showenrolstatus' => new external_value(PARAM_BOOL, 'Show enrolment status badge'),
-            // Course data.
             'id'              => new external_value(PARAM_INT, 'Course ID'),
             'fullname'        => new external_value(PARAM_TEXT, 'Course full name'),
             'summary'         => new external_value(PARAM_RAW, 'Plain-text summary excerpt'),
@@ -205,7 +204,6 @@ class get_catalogue extends external_api {
             'imageurl'        => new external_value(PARAM_RAW, 'URL or data URI of the course overview image'),
             'hasfieldvalues'  => new external_value(PARAM_BOOL, 'Whether any card fields have values'),
             'fieldvalues'     => new external_multiple_structure($fieldvaluedef),
-            // New optional fields.
             'contacts'        => new external_value(PARAM_TEXT, 'Comma-separated course contact names'),
             'enroltype'       => new external_value(PARAM_TEXT, 'Short enrolment method label'),
             'completed'       => new external_value(PARAM_BOOL, 'Whether the current user has completed this course'),
