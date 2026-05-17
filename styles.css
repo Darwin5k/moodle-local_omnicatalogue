@@ -72,10 +72,15 @@
     font-weight: 600;
 }
 
-/* Count badge */
+/* Count badge (no Bootstrap .badge to avoid colour override) */
 .local-omnicatalogue-count {
+    display: inline-block;
+    padding: 0.25em 0.55em;
     font-size: 0.65rem;
     font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
     background-color: #dee2e6;
     color: #495057;
     min-width: 1.6rem;
@@ -96,7 +101,19 @@
     object-fit: cover;
 }
 
-/* Enrolment status badges */
+/* Enrolment status badges — base layout (no Bootstrap .badge to avoid colour override) */
+.local-omnicatalogue-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+}
+
 .local-omnicatalogue-badge--completed {
     background-color: #198754;
     color: #fff;
