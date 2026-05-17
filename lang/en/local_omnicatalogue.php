@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['addgroup']               = 'Add tag group';
 $string['additionalfacets']       = 'Additional filter facets';
-$string['additionalfacets_desc']  = 'Enable additional filter facets to complement the custom field filters above. Available sources include course categories, enrolment methods, and tag groups.';
+$string['additionalfacets_desc']  = 'Enable additional filter facets other than custom fields.';
 $string['allcourses']             = 'All courses';
 $string['applyfilters']           = 'Apply filters';
 $string['card_showcategory']      = 'Show category name';
