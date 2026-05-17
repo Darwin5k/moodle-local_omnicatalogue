@@ -78,7 +78,10 @@ class taggroup_form extends \moodleform {
         $mform->addElement('hidden', 'id', 0);
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('hidden', 'action', 'save');
+        // Preserve the current action (add/edit) so the page can re-enter the
+        // correct branch when the form is submitted.
+        $action = $this->_customdata['action'] ?? 'add';
+        $mform->addElement('hidden', 'action', $action);
         $mform->setType('action', PARAM_ALPHA);
 
         $this->add_action_buttons(true, get_string('savegroup', 'local_omnicatalogue'));

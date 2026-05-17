@@ -64,7 +64,7 @@ if ($action === 'add' || ($action === 'edit' && $groupid > 0)) {
         $group = null;
     }
 
-    $form = new \local_omnicatalogue\form\taggroup_form(null, ['groupid' => $groupid]);
+    $form = new \local_omnicatalogue\form\taggroup_form(null, ['groupid' => $groupid, 'action' => $action]);
 
     if ($group) {
         // Pre-populate form with existing data.
