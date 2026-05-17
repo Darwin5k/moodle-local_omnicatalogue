@@ -55,16 +55,17 @@ foreach ($rawf as $facetkey => $values) {
 $page    = max(0, optional_param('page', 0, PARAM_INT));
 $perpage = (int)(get_config('local_omnicatalogue', 'perpage') ?: 20);
 
-// Show admin links when the user has the managecatalogue capability and
-// Moodle's built-in edit mode is active (the toggle in the page header).
-$canedit   = has_capability('local/omnicatalogue:managecatalogue', context_system::instance());
-$isediting = $canedit && $PAGE->user_is_editing();
-
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/local/omnicatalogue/index.php'));
 $PAGE->set_title(get_string('catalogue', 'local_omnicatalogue'));
 $PAGE->set_heading(get_string('catalogue', 'local_omnicatalogue'));
 $PAGE->set_pagelayout('base');
+
+// Show admin links when the user has the managecatalogue capability and
+// Moodle's built-in edit mode is active (the toggle in the page header).
+// Must run after set_context() so $PAGE->user_is_editing() has a context.
+$canedit   = has_capability('local/omnicatalogue:managecatalogue', context_system::instance());
+$isediting = $canedit && $PAGE->user_is_editing();
 
 $display    = catalogue::get_card_display_settings();
 $facets     = catalogue::get_facets($activefilters);
