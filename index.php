@@ -55,6 +55,19 @@ foreach ($rawf as $facetkey => $values) {
 $page    = max(0, optional_param('page', 0, PARAM_INT));
 $perpage = (int)(get_config('local_omnicatalogue', 'perpage') ?: 20);
 
+// Editing mode toggle — only users with the managecatalogue capability can
+// enter editing mode. The edit=1/0 URL parameter (protected by sesskey) sets
+// the global $USER->editing flag, which persists for the session.
+$canedit = has_capability('local/omnicatalogue:managecatalogue', context_system::instance());
+if ($canedit) {
+    $edit = optional_param('edit', -1, PARAM_BOOL);
+    if ($edit !== -1) {
+        require_sesskey();
+        $USER->editing = $edit;
+    }
+}
+$isediting = $canedit && !empty($USER->editing);
+
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/local/omnicatalogue/index.php'));
 $PAGE->set_title(get_string('catalogue', 'local_omnicatalogue'));
@@ -119,6 +132,14 @@ foreach ($result['courses'] as $course) {
 $baseurl = new moodle_url('/local/omnicatalogue/index.php');
 $total   = $result['total'];
 
+// Admin bar context — only populated for users who can manage the catalogue.
+$editurl = $canedit
+    ? (new moodle_url('/local/omnicatalogue/index.php', [
+        'edit'    => $isediting ? 0 : 1,
+        'sesskey' => sesskey(),
+    ]))->out(false)
+    : '';
+
 $templatecontext = [
     'facets'        => $facets,
     'hasfacets'     => !empty($facets),
@@ -140,6 +161,15 @@ $templatecontext = [
     'applyfilters'  => get_string('applyfilters', 'local_omnicatalogue'),
     'clearfilters'  => get_string('clearfilters', 'local_omnicatalogue'),
     'filterby'      => get_string('filterby', 'local_omnicatalogue'),
+    // Admin bar.
+    'canedit'       => $canedit,
+    'isediting'     => $isediting,
+    'editurl'       => $editurl,
+    'editlabel'     => $isediting ? get_string('turneditingoff') : get_string('turneditingon'),
+    'settingsurl'   => $canedit ? (new moodle_url('/admin/settings.php', ['section' => 'local_omnicatalogue']))->out(false) : '',
+    'taggroupsurl'  => $canedit ? (new moodle_url('/local/omnicatalogue/taggroups.php'))->out(false) : '',
+    'settingslabel' => get_string('settings', 'local_omnicatalogue'),
+    'taggroupslabel' => get_string('managetaggroups', 'local_omnicatalogue'),
 ];
 
 $PAGE->requires->js_call_amd('local_omnicatalogue/catalogue', 'init', [[
