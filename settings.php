@@ -115,6 +115,14 @@ if ($hassiteconfig) {
         0
     ));
 
+    $taggroupsurl = new moodle_url('/local/omnicatalogue/taggroups.php');
+    $settings->add(new admin_setting_configcheckbox(
+        'local_omnicatalogue/facet_taggroups',
+        get_string('facet_taggroups', 'local_omnicatalogue'),
+        get_string('facet_taggroups_desc', 'local_omnicatalogue', $taggroupsurl->out(false)),
+        0
+    ));
+
     // Custom field filters and card fields.
     $settings->add(new admin_setting_heading(
         'local_omnicatalogue/filterfields_heading',

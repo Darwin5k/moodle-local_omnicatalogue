@@ -256,7 +256,10 @@ class catalogue {
             }
         }
 
-        // Tag group facets.
+        // Tag group facets (optional).
+        if (!get_config('local_omnicatalogue', 'facet_taggroups')) {
+            return $facets;
+        }
         $taggroups = $DB->get_records('local_omnicatalogue_taggroups', null, 'sortorder ASC, name ASC');
         foreach ($taggroups as $group) {
             $facetkey = 'tg_' . $group->id;

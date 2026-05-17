@@ -54,6 +54,8 @@ $string['facet_category']         = 'Course category';
 $string['facet_category_desc']    = 'Show a filter facet listing all course categories.';
 $string['facet_enroltype']        = 'Enrolment type';
 $string['facet_enroltype_desc']   = 'Show a filter facet listing the available enrolment methods.';
+$string['facet_taggroups']        = 'Tag groups';
+$string['facet_taggroups_desc']   = 'Show a filter facet for each configured tag group. Tag groups and their assigned tags are managed on the <a href="{$a}">Manage tag groups</a> page.';
 $string['filterby']               = 'Filter by';
 $string['filterfields']           = 'Custom field filters and card fields';
 $string['filterfields_desc']      = 'Choose which omniselect custom fields appear as sidebar filters and which are displayed on course cards.';
