@@ -20,22 +20,17 @@
     * haspages     - boolean; pagination needed.
     * hasprev / hasnext / prevpage / nextpage - pagination state.
 }}
-{{! Admin bar — visible only to users with managecatalogue capability. }}
-{{#canedit}}
+{{! Admin bar — visible to managecatalogue users when Moodle edit mode is on. }}
+{{#isediting}}
 <div class="local-omnicatalogue-adminbar d-flex align-items-center justify-content-end gap-2 py-2 px-3 mb-2 border-bottom">
-  {{#isediting}}
-    <a href="{{settingsurl}}" class="btn btn-sm btn-outline-secondary">
-      <span aria-hidden="true">&#9881;</span> {{settingslabel}}
-    </a>
-    <a href="{{taggroupsurl}}" class="btn btn-sm btn-outline-secondary">
-      <span aria-hidden="true">&#127991;</span> {{taggroupslabel}}
-    </a>
-  {{/isediting}}
-  <a href="{{editurl}}" class="btn btn-sm {{#isediting}}btn-warning{{/isediting}}{{^isediting}}btn-outline-secondary{{/isediting}}">
-    {{editlabel}}
+  <a href="{{settingsurl}}" class="btn btn-sm btn-outline-secondary">
+    <span aria-hidden="true">&#9881;</span> {{settingslabel}}
+  </a>
+  <a href="{{taggroupsurl}}" class="btn btn-sm btn-outline-secondary">
+    <span aria-hidden="true">&#127991;</span> {{taggroupslabel}}
   </a>
 </div>
-{{/canedit}}
+{{/isediting}}
 
 <div class="local-omnicatalogue container-fluid py-4" id="omnicatalogue-root">
   <div class="row">
