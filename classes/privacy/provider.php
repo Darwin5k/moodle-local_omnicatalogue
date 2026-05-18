@@ -15,18 +15,34 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and dependencies.
+ * Privacy provider for local_omnicatalogue.
  *
  * @package    local_omnicatalogue
  * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_omnicatalogue\privacy;
 
-$plugin->component    = 'local_omnicatalogue';
-$plugin->version      = 2026051503;
-$plugin->requires     = 2025092600;
-$plugin->dependencies = ['customfield_omniselect' => 2026051402];
-$plugin->maturity     = MATURITY_ALPHA;
-$plugin->release      = '1.3.0';
+use core_privacy\local\metadata\null_provider;
+
+/**
+ * The course catalogue plugin does not store any personal data.
+ *
+ * It reads course metadata and enrolment status from Moodle core tables but
+ * does not persist any user-identifiable information of its own.
+ *
+ * @package    local_omnicatalogue
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class provider implements null_provider {
+    /**
+     * Returns the lang string key identifying this plugin's privacy statement.
+     *
+     * @return string
+     */
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

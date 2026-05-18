@@ -18,7 +18,7 @@
  * Form for creating and editing catalogue tag groups.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,7 +35,7 @@ require_once($CFG->libdir . '/formslib.php');
  *   - groupid (int) — 0 for a new group, existing ID for edits.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class taggroup_form extends \moodleform {

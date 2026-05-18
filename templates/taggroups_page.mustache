@@ -24,7 +24,7 @@
         <tr>
           <th scope="col">{{groupname}}</th>
           <th scope="col">{{tagcount}}</th>
-          <th scope="col"></th>
+          <th scope="col" aria-label="{{#str}}actions, moodle{{/str}}"></th>
         </tr>
       </thead>
       <tbody>
@@ -54,13 +54,4 @@
 
 </div>
 
-{{! Confirm delete via data attribute to avoid inline JS with unescaped strings. }}
-<script>
-document.querySelectorAll('a[data-confirm]').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-        if (!confirm(this.dataset.confirm)) {
-            e.preventDefault();
-        }
-    });
-});
-</script>
+{{! Delete confirmation is wired up by the local_omnicatalogue/taggroups AMD module. }}

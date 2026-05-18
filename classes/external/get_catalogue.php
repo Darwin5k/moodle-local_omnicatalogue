@@ -18,7 +18,7 @@
  * External function returning facets and course cards for the catalogue.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,13 +36,14 @@ use local_omnicatalogue\catalogue;
  * the catalogue in response to a filter change or page navigation.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_catalogue extends external_api {
     /**
      * Describes the input parameters.
      *
+     * @since  Moodle 5.1
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
@@ -65,6 +66,7 @@ class get_catalogue extends external_api {
     /**
      * Returns facets and course cards for the given filter state.
      *
+     * @since  Moodle 5.1
      * @param  array $filters Array of {facetkey, values[]} objects.
      * @param  int   $page    Zero-based page number.
      * @return array
@@ -166,6 +168,7 @@ class get_catalogue extends external_api {
     /**
      * Describes the return structure.
      *
+     * @since  Moodle 5.1
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {

@@ -18,7 +18,7 @@
  * Language strings for local_omnicatalogue.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 $string['addgroup']               = 'Add tag group';
 $string['additionalfacets']       = 'Additional filter facets';
 $string['additionalfacets_desc']  = 'Enable additional filter facets beyond custom fields.';
-$string['allcourses']             = 'All courses';
 $string['applyfilters']           = 'Apply filters';
 $string['card_showcategory']      = 'Show category name';
 $string['card_showcategory_desc'] = 'Display the course category name on each card.';
@@ -63,6 +62,7 @@ $string['groupdeleted']           = 'Tag group deleted.';
 $string['groupname']              = 'Group name';
 $string['groupsaved']             = 'Tag group saved.';
 $string['managetaggroups']        = 'Manage tag groups';
+$string['next']                   = 'Next';
 $string['nocourses']              = 'No courses match the selected filters.';
 $string['nocoursetags']           = 'No tags are currently assigned to any visible course.';
 $string['nogroups']               = 'No tag groups have been created yet.';
@@ -71,6 +71,7 @@ $string['omnicatalogue:view']     = 'View course catalogue';
 $string['perpage']                = 'Courses per page';
 $string['perpage_desc']           = 'Number of courses to display per page.';
 $string['pluginname']             = 'Course Catalogue';
+$string['previous']               = 'Previous';
 $string['privacy:metadata']       = 'The course catalogue plugin does not store any personal data.';
 $string['results']                = '{$a} courses found';
 $string['savegroup']              = 'Save group';
@@ -79,5 +80,3 @@ $string['settings']               = 'Catalogue settings';
 $string['showcardfield']          = 'Show "{$a}" on course cards';
 $string['showfilterfield']        = 'Show "{$a}" as a filter';
 $string['tagcount']               = 'Tags assigned';
-$string['taggroups']              = 'Tag groups';
-$string['viewcourse']             = 'View course';

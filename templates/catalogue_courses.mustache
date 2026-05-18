@@ -30,12 +30,12 @@
     {{#hasprev}}
       <button type="button"
               class="btn btn-outline-primary btn-sm"
-              data-omnicatalogue-page="{{prevpage}}">&laquo; Previous</button>
+              data-omnicatalogue-page="{{prevpage}}">&laquo; {{#str}}previous, local_omnicatalogue{{/str}}</button>
     {{/hasprev}}
     {{#hasnext}}
       <button type="button"
               class="btn btn-outline-primary btn-sm"
-              data-omnicatalogue-page="{{nextpage}}">Next &raquo;</button>
+              data-omnicatalogue-page="{{nextpage}}">{{#str}}next, local_omnicatalogue{{/str}} &raquo;</button>
     {{/hasnext}}
   </div>
 {{/haspages}}

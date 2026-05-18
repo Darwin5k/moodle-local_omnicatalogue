@@ -18,7 +18,7 @@
  * Core query and data logic for the course catalogue.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -41,7 +41,7 @@ namespace local_omnicatalogue;
  * external-function wire format, and as the array key in `$activefilters`.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class catalogue {

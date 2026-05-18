@@ -18,7 +18,7 @@
  * Upgrade steps for local_omnicatalogue.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

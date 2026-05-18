@@ -22,7 +22,7 @@
  * catalogue filter sidebar.
  *
  * @package    local_omnicatalogue
- * @copyright  2026 Your Name <you@example.com>
+ * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -160,6 +160,8 @@ $templatecontext = [
     'groupname' => get_string('groupname', 'local_omnicatalogue'),
     'tagcount'  => get_string('tagcount', 'local_omnicatalogue'),
 ];
+
+$PAGE->requires->js_call_amd('local_omnicatalogue/taggroups', 'init');
 
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('local_omnicatalogue/taggroups_page', $templatecontext);
