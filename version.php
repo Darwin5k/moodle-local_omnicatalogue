@@ -28,5 +28,5 @@ $plugin->component    = 'local_omnicatalogue';
 $plugin->version      = 2026051503;
 $plugin->requires     = 2025092600;
 $plugin->dependencies = ['customfield_omniselect' => 2026051402];
-$plugin->maturity     = MATURITY_ALPHA;
+$plugin->maturity     = MATURITY_BETA;
 $plugin->release      = '1.3.0';
