@@ -1,5 +1,9 @@
 # Changelog — local_omnicatalogue
 
+## 1.3.4 (2026052704)
+- Fixed lang string key ordering (catalogueurl_heading moved to correct
+  alphabetical position between catalogue and category).
+
 ## 1.3.3 (2026052703)
 - Fixed mustache template example context format (use `Example context (json):`)
   so automated precheck recognises them correctly.
