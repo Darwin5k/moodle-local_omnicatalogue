@@ -117,10 +117,27 @@ define([
     var fetchAndRender = function(form, filters, page, pushState) {
         setLoading(true);
 
+        // Snapshot which facet panels are currently expanded so we can
+        // restore that state after the re-render.  Without this, a panel
+        // the user was working in collapses when they clear its last value.
+        var facetsEl = document.getElementById('omnicatalogue-facets');
+        var openFacetIds = [];
+        if (facetsEl) {
+            facetsEl.querySelectorAll('.collapse.show[id]').forEach(function(el) {
+                openFacetIds.push(el.id);
+            });
+        }
+
+        // Store the web-service response so it is accessible to later .then() stages
+        // without nesting promise callbacks inside one another.
+        var responseData = null;
+
         Ajax.call([{
             methodname: 'local_omnicatalogue_get_catalogue',
             args: {filters: filters, page: page},
-        }])[0].then(function(data) {
+        }])[0]
+        .then(function(data) {
+            responseData = data;
 
             // Update result-count text.
             var countEl = document.getElementById('omnicatalogue-resultcount');
@@ -134,75 +151,67 @@ define([
                 clearLink.classList.toggle('d-none', !data.hasfilters);
             }
 
-            // Snapshot which facet panels are currently expanded so we can
-            // restore that state after the re-render.  Without this, a panel
-            // the user was working in collapses when they clear its last value.
-            var openFacetIds = [];
-            var facetsEl = document.getElementById('omnicatalogue-facets');
-            if (facetsEl) {
-                facetsEl.querySelectorAll('.collapse.show[id]').forEach(function(el) {
-                    openFacetIds.push(el.id);
-                });
-            }
-
             // Re-render the facet list.
             return Templates.renderForPromise(
                 'local_omnicatalogue/catalogue_facets',
                 {facets: data.facets}
-            ).then(function(facetResult) {
-                if (facetsEl) {
-                    Templates.replaceNodeContents(facetsEl, facetResult.html, facetResult.js);
+            );
+        })
+        .then(function(facetResult) {
+            if (facetsEl) {
+                Templates.replaceNodeContents(facetsEl, facetResult.html, facetResult.js);
 
-                    // Re-open any panel that was expanded before the re-render,
-                    // regardless of whether it now has active filters.
-                    openFacetIds.forEach(function(id) {
-                        var panel = document.getElementById(id);
-                        if (panel) {
-                            panel.classList.add('show');
-                            // Keep the toggle button's aria-expanded in sync so
-                            // the caret rotates correctly.
-                            var btn = facetsEl.querySelector('[data-bs-target="#' + id + '"]');
-                            if (btn) {
-                                btn.setAttribute('aria-expanded', 'true');
-                            }
+                // Re-open any panel that was expanded before the re-render,
+                // regardless of whether it now has active filters.
+                openFacetIds.forEach(function(id) {
+                    var panel = document.getElementById(id);
+                    if (panel) {
+                        panel.classList.add('show');
+                        // Keep the toggle button's aria-expanded in sync so
+                        // the caret rotates correctly.
+                        var btn = facetsEl.querySelector('[data-bs-target="#' + id + '"]');
+                        if (btn) {
+                            btn.setAttribute('aria-expanded', 'true');
                         }
-                    });
-                }
-
-                // Re-render the course grid + pagination.
-                return Templates.renderForPromise(
-                    'local_omnicatalogue/catalogue_courses',
-                    {
-                        courses:     data.courses,
-                        nocourses:   data.nocourses,
-                        nocoursestr: Config.nocoursestr,
-                        haspages:    data.haspages,
-                        hasprev:     data.hasprev,
-                        hasnext:     data.hasnext,
-                        prevpage:    data.prevpage,
-                        nextpage:    data.nextpage,
                     }
+                });
+            }
+
+            // Re-render the course grid + pagination.
+            return Templates.renderForPromise(
+                'local_omnicatalogue/catalogue_courses',
+                {
+                    courses: responseData.courses,
+                    nocourses: responseData.nocourses,
+                    nocoursestr: Config.nocoursestr,
+                    haspages: responseData.haspages,
+                    hasprev: responseData.hasprev,
+                    hasnext: responseData.hasnext,
+                    prevpage: responseData.prevpage,
+                    nextpage: responseData.nextpage,
+                }
+            );
+        })
+        .then(function(coursesResult) {
+            var coursesEl = document.getElementById('omnicatalogue-courses-inner');
+            if (coursesEl) {
+                Templates.replaceNodeContents(coursesEl, coursesResult.html, coursesResult.js);
+            }
+
+            // Push a new browser-history entry so the URL stays bookmarkable
+            // and back/forward navigation works.
+            if (pushState) {
+                history.pushState(
+                    {omnicatalogue: true, filters: filters, page: page},
+                    '',
+                    buildUrl(filters, page)
                 );
-            }).then(function(coursesResult) {
-                var coursesEl = document.getElementById('omnicatalogue-courses-inner');
-                if (coursesEl) {
-                    Templates.replaceNodeContents(coursesEl, coursesResult.html, coursesResult.js);
-                }
+            }
 
-                // Push a new browser-history entry so the URL stays bookmarkable
-                // and back/forward navigation works.
-                if (pushState) {
-                    history.pushState(
-                        {omnicatalogue: true, filters: filters, page: page},
-                        '',
-                        buildUrl(filters, page)
-                    );
-                }
-
-                setLoading(false);
-            });
-
-        }).catch(function(err) {
+            setLoading(false);
+            return;
+        })
+        .catch(function(err) {
             setLoading(false);
             Notification.exception(err);
         });
@@ -225,10 +234,10 @@ define([
          */
         init: function(options) {
             if (options) {
-                Config.baseUrl     = options.baseUrl     || '';
-                Config.perpage     = options.perpage     || 20;
+                Config.baseUrl = options.baseUrl || '';
+                Config.perpage = options.perpage || 20;
                 Config.nocoursestr = options.nocoursestr || '';
-                Config.page        = options.page        || 0;
+                Config.page = options.page || 0;
             }
 
             var form = document.getElementById('omnicatalogue-filter-form');

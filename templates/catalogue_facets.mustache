@@ -6,6 +6,21 @@
 
     Context variables:
     * facets - array of facet objects, each passed to filter_sidebar.
+
+    Example context (view variables in the mustache template):
+    {
+        "facets": [
+            {
+                "facetkey": "cf_1",
+                "fieldname": "Subject Area",
+                "hasactive": false,
+                "values": [
+                    {"value": "programming", "label": "Programming", "count": 5, "selected": false, "facetkey": "cf_1"},
+                    {"value": "design", "label": "Design", "count": 3, "selected": false, "facetkey": "cf_1"}
+                ]
+            }
+        ]
+    }
 }}
 {{#facets}}
   {{> local_omnicatalogue/filter_sidebar}}

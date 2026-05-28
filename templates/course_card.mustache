@@ -23,6 +23,29 @@
     * completed       - bool: current user has completed this course.
     * enrolledonly    - bool: current user is enrolled but not yet completed.
     * hasbadges       - bool: whether any badge row should be shown.
+
+    Example context (view variables in the mustache template):
+    {
+        "showimage": false,
+        "showsummary": true,
+        "showcategory": true,
+        "showcontacts": true,
+        "showenroltype": true,
+        "showenrolstatus": true,
+        "id": 42,
+        "fullname": "Introduction to Web Development",
+        "summary": "Learn the fundamentals of HTML, CSS, and JavaScript.",
+        "category": "Computing",
+        "courseurl": "http://example.com/course/view.php?id=42",
+        "imageurl": "",
+        "hasfieldvalues": true,
+        "fieldvalues": [{"fieldname": "Level", "values": "Beginner"}],
+        "contacts": "Jane Smith",
+        "enroltype": "Self enrolment",
+        "completed": false,
+        "enrolledonly": true,
+        "hasbadges": true
+    }
 }}
 <div class="col">
   <div class="card h-100 shadow-sm">

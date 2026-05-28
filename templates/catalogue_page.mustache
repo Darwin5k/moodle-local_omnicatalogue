@@ -19,6 +19,32 @@
     * nocoursestr  - translated "no courses" message.
     * haspages     - boolean; pagination needed.
     * hasprev / hasnext / prevpage / nextpage - pagination state.
+
+    Example context (view variables in the mustache template):
+    {
+        "formaction": "http://example.com/local/omnicatalogue/",
+        "filterby": "Filter by",
+        "clearfilters": "Clear filters",
+        "clearurl": "http://example.com/local/omnicatalogue/",
+        "hasfilters": false,
+        "hasfacets": true,
+        "applyfilters": "Apply filters",
+        "facets": [],
+        "resultstring": "Showing 20 of 42 courses",
+        "courses": [],
+        "nocourses": false,
+        "nocoursestr": "No courses found.",
+        "haspages": false,
+        "hasprev": false,
+        "hasnext": false,
+        "prevpage": 0,
+        "nextpage": 1,
+        "isediting": false,
+        "settingsurl": "http://example.com/local/omnicatalogue/settings.php",
+        "settingslabel": "Settings",
+        "taggroupsurl": "http://example.com/local/omnicatalogue/taggroups.php",
+        "taggroupslabel": "Tag groups"
+    }
 }}
 {{! Admin bar — visible to managecatalogue users when Moodle edit mode is on. }}
 {{#isediting}}

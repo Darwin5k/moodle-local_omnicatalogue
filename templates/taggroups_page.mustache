@@ -11,6 +11,25 @@
     * groupname - translated column header.
     * tagcount  - translated column header.
     * groups    - array of {name, tagcount, editurl, deleteurl, deleteconfirm}.
+
+    Example context (view variables in the mustache template):
+    {
+        "addurl": "http://example.com/local/omnicatalogue/taggroup_edit.php",
+        "addgroup": "Add tag group",
+        "hasgroups": true,
+        "nogroups": "No tag groups defined yet.",
+        "groupname": "Group name",
+        "tagcount": "Tags",
+        "groups": [
+            {
+                "name": "Subject Area",
+                "tagcount": 8,
+                "editurl": "http://example.com/local/omnicatalogue/taggroup_edit.php?id=1",
+                "deleteurl": "http://example.com/local/omnicatalogue/taggroups.php?delete=1&sesskey=abc123",
+                "deleteconfirm": "Are you sure you want to delete this tag group?"
+            }
+        ]
+    }
 }}
 <div class="local-omnicatalogue-taggroups">
 

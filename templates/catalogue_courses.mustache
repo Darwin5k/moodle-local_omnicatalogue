@@ -14,6 +14,18 @@
     * hasnext     - boolean; true when a next page exists.
     * prevpage    - zero-based previous page number.
     * nextpage    - zero-based next page number.
+
+    Example context (view variables in the mustache template):
+    {
+        "courses": [],
+        "nocourses": false,
+        "nocoursestr": "No courses found matching your filters.",
+        "haspages": true,
+        "hasprev": true,
+        "hasnext": true,
+        "prevpage": 0,
+        "nextpage": 2
+    }
 }}
 {{#nocourses}}
   <div class="alert alert-info">{{nocoursestr}}</div>

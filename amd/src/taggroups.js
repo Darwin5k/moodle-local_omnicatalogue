@@ -25,7 +25,7 @@
  * @copyright  2026 Robert Bellamy <darwin5k@gmail.com>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([], function() {
+define(['core/notification'], function(Notification) {
 
     'use strict';
 
@@ -35,13 +35,23 @@ define([], function() {
          * Initialises delete-confirmation behaviour on the tag groups list page.
          *
          * Called from taggroups.php via $PAGE->requires->js_call_amd().
+         * Uses Moodle's Notification.confirm() rather than the native browser
+         * confirm() dialog so the experience is consistent with Moodle's UI.
          */
         init: function() {
             document.querySelectorAll('a[data-confirm]').forEach(function(link) {
                 link.addEventListener('click', function(e) {
-                    if (!window.confirm(this.dataset.confirm)) {
-                        e.preventDefault();
-                    }
+                    e.preventDefault();
+                    var deleteUrl = this.href;
+                    var confirmText = this.dataset.confirm;
+                    Notification.confirm(
+                        '',
+                        confirmText,
+                        function() {
+                            window.location.href = deleteUrl;
+                        },
+                        null
+                    );
                 });
             });
         },

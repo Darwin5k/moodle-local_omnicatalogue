@@ -26,8 +26,8 @@
     color: inherit;
 }
 
-.local-omnicatalogue-facet__header:hover {
-    color: var(--bs-primary) !important;
+.local-omnicatalogue-facet .local-omnicatalogue-facet__header:hover {
+    color: var(--bs-primary);
 }
 
 /* CSS-only disclosure chevron */
