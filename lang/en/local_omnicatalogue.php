@@ -25,11 +25,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addgroup']               = 'Add tag group';
-$string['catalogueurl_heading']      = 'Catalogue page';
-$string['catalogueurl_heading_desc'] = '<div class="alert alert-info"><p>The catalogue is available at <a href="{$a}">{$a}</a>.</p><p>To add it to your site navigation, go to <strong>Site administration → Appearance → Themes → Advanced theme settings → Custom menu items</strong> and add a line such as: <code>Course Catalogue|/local/omnicatalogue/</code></p><p class="mb-0">Most standard Moodle themes including Boost support this field.</p></div>';
 $string['additionalfacets']       = 'Additional filter facets';
 $string['additionalfacets_desc']  = 'Enable additional filter facets beyond custom fields.';
 $string['applyfilters']           = 'Apply filters';
+$string['catalogueurl_heading']      = 'Catalogue page';
+$string['catalogueurl_heading_desc'] = '<div class="alert alert-info"><p>The catalogue is available at <a href="{$a}">{$a}</a>.</p><p>To add it to your site navigation, go to <strong>Site administration → Appearance → Themes → Advanced theme settings → Custom menu items</strong> and add a line such as: <code>Course Catalogue|/local/omnicatalogue/</code></p><p class="mb-0">Most standard Moodle themes including Boost support this field.</p></div>';
 $string['card_showcategory']      = 'Show category name';
 $string['card_showcategory_desc'] = 'Display the course category name on each card.';
 $string['card_showcontacts']      = 'Show course contacts';

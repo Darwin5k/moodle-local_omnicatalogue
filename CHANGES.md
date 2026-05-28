@@ -1,5 +1,10 @@
 # Changelog — local_omnicatalogue
 
+## 1.3.3 (2026052703)
+- Fixed mustache template example context format (use `Example context (json):`)
+  so automated precheck recognises them correctly.
+- Fixed lang string key ordering (phpcs).
+
 ## 1.3.2 (2026052702)
 - Added a catalogue URL info box to the settings page showing the catalogue
   link and instructions for adding it to site navigation via Custom menu items.
