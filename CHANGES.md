@@ -1,5 +1,15 @@
 # Changelog — local_omnicatalogue
 
+## 1.3.2 (2026052702)
+- Added a catalogue URL info box to the settings page showing the catalogue
+  link and instructions for adding it to site navigation via Custom menu items.
+
+## 1.3.1 (2026052701)
+- Fixed automated precheck errors: removed CSS `!important`, flattened
+  promise chain in catalogue.js, replaced `window.confirm()` with Moodle's
+  `Notification.confirm()` in taggroups.js, fixed no-multi-spaces warnings,
+  added example contexts to all six Mustache templates, rebuilt AMD build files.
+
 ## 1.3.0 (2026051503)
 - Added tag group facets: administrators can define named groups of Moodle
   course tags and expose each group as a filter in the catalogue sidebar.
