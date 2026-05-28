@@ -36,6 +36,15 @@ if ($hassiteconfig) {
         'local/omnicatalogue:managecatalogue'
     ));
 
+    // Catalogue URL info — shown at the top of the settings page so admins
+    // can easily find the catalogue page and share it with users.
+    $catalogueurl = new moodle_url('/local/omnicatalogue/index.php');
+    $settings->add(new admin_setting_heading(
+        'local_omnicatalogue/catalogueurl_heading',
+        get_string('catalogueurl_heading', 'local_omnicatalogue'),
+        get_string('catalogueurl_heading_desc', 'local_omnicatalogue', $catalogueurl->out(false))
+    ));
+
     // General settings.
     $settings->add(new admin_setting_configtext(
         'local_omnicatalogue/perpage',
